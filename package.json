@@ -1,0 +1,25 @@
+{
+  "name": "marked-terminal",
+  "version": "0.0.1",
+  "description": "A customr render for marked to output to the Terminal",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "marked",
+    "render",
+    "terminal",
+    "markdown",
+    "markdown-to-terminal"
+  ],
+  "author": "Mikael Brevik",
+  "license": "MIT",
+  "optionalDependencies": {
+    "marked": "^0.3.2"
+  },
+  "dependencies": {
+    "chalk": "^0.5.1",
+    "cli-table": "^0.3.0"
+  }
+}
