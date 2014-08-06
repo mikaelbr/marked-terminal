@@ -32,4 +32,41 @@ This will produce the following:
 ![Screenshot of marked-terminal](./screenshot.png)
 
 
+## API
+
+### Constructur: `new TerminalRenderer([options])`
+Options: Optional
+Used to override default styling.
+
+Default values are:
+
+```javascript
+var defaultOptions = {
+  code: chalk.yellow,
+  blockquote: chalk.gray.italic,
+  html: chalk.gray,
+  heading: chalk.green.bold,
+  firstHeading: chalk.magenta.underline.bold,
+  hr: chalk.reset,
+  listitem: chalk.reset,
+  table: chalk.reset,
+  paragraph: chalk.reset,
+  strong: chalk.bold,
+  em: chalk.italic,
+  codespan: chalk.yellow,
+  del: chalk.dim.gray.strikethrough,
+  link: chalk.blue,
+  href: chalk.blue.underline,
+};
+```
+
+#### Example of overriding defaults
+```javascript
+marked.setOptions({
+  renderer: new TerminalRenderer({
+    codespan: chalk.underline.magenta,
+  })
+});
+```
+
 See [more examples](./example/)

@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "chalk": "^0.5.1",
-    "cli-table": "^0.3.0"
+    "cli-table": "^0.3.0",
+    "node.extend": "^1.0.10"
   }
 }
