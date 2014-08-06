@@ -2,7 +2,8 @@ marked-terminal
 ===
 
 Early release of a custom Renderer for [marked](https://github.com/chjj/marked)
-allowing for printing Markdown to the Terminal.
+allowing for printing Markdown to the Terminal. Supports pretty tables, syntax
+highlighting for javascript, and overriding all colors and styles.
 
 Could for instance be used to print usage information.
 
@@ -32,10 +33,38 @@ This will produce the following:
 ![Screenshot of marked-terminal](./screenshot.png)
 
 
+### Syntax Highlighting
+
+Also have support for syntax highlighting using [cardinal](https://github.com/thlorenz/cardinal).
+You can override highlight defaults by passing in settings as the second argument for TerminalRenderer,
+or you can create a `.cardinalrc` as defined in the [cardinal README](https://github.com/thlorenz/cardinal).
+
+Example source
+```
+  ``js
+  var foo = function(bar) {
+    console.log(bar);
+  };
+  foo('Hello');
+  ``
+```
+(But with proper syntax. Using "``" to avoid Github markdown)
+
+```javascript
+// Show the parsed data
+console.log(marked(exampleSource));
+```
+
+This will produce the following:
+
+![Screenshot of marked-terminal](./screenshot2.png)
+
 ## API
 
-### Constructur: `new TerminalRenderer([options])`
-Options: Optional
+### Constructur: `new TerminalRenderer([options][, highlightOptions])`
+
+#### `options`
+Optional
 Used to override default styling.
 
 Default values are:
@@ -68,5 +97,10 @@ marked.setOptions({
   })
 });
 ```
+
+#### `highlightOptions`
+Options passed into [cardinal](https://github.com/thlorenz/cardinal). See
+readme there to see what options to pass.
+
 
 See [more examples](./example/)

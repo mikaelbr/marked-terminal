@@ -3,6 +3,7 @@
 var chalk = require('chalk');
 var Table = require('cli-table');
 var extend = require('node.extend');
+var cardinal = require('cardinal');
 
 
 var TABLE_CELL_SPLIT = '^*||*^';
@@ -28,12 +29,13 @@ var defaultOptions = {
   href: chalk.blue.underline,
 };
 
-function Renderer(options) {
+function Renderer(options, highlightOptions) {
   this.o = extend(defaultOptions, options);
+  this.highlightOptions = highlightOptions || {};
 }
 
 Renderer.prototype.code = function(code, lang, escaped) {
-  return '\n' + this.o.code(indentify(code)) + '\n\n';
+  return '\n' + indentify(highlight(code, lang, this.o.code, this.highlightOptions)) + '\n\n';
 };
 
 Renderer.prototype.blockquote = function(quote) {
@@ -149,6 +151,17 @@ function changeToOrdered(text) {
   }, '');
 }
 
+function highlight(code, lang, style, opts) {
+  if (lang !== 'javascript' && lang !== 'js') {
+    return style(code);
+  }
+
+  try {
+    return cardinal.highlight(code, opts);
+  } catch (e) {
+    return style(code);
+  }
+}
 
 function hr(inputHrStr) {
   return (new Array(process.stdout.columns)).join(inputHrStr);
