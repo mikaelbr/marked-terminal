@@ -61,9 +61,9 @@ This will produce the following:
 
 ## API
 
-### Constructur: `new TerminalRenderer([options][, highlightOptions])`
+Constructur: `new TerminalRenderer([options][, highlightOptions])`
 
-#### `options`
+### `options`
 Optional
 Used to override default styling.
 
@@ -98,7 +98,7 @@ marked.setOptions({
 });
 ```
 
-#### `highlightOptions`
+### `highlightOptions`
 Options passed into [cardinal](https://github.com/thlorenz/cardinal). See
 readme there to see what options to pass.
 
