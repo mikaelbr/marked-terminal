@@ -23,5 +23,17 @@
     "chalk": "^0.5.1",
     "cli-table": "^0.3.0",
     "node.extend": "^1.0.10"
-  }
+  },
+  "directories": {
+    "example": "example"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mikaelbr/marked-terminal.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mikaelbr/marked-terminal/issues"
+  },
+  "homepage": "https://github.com/mikaelbr/marked-terminal"
 }
