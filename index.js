@@ -10,7 +10,6 @@ var TABLE_CELL_SPLIT = '^*||*^';
 var TABLE_ROW_WRAP = '*|*|*|*';
 var TABLE_ROW_WRAP_REGEXP = new RegExp(escapeRegExp(TABLE_ROW_WRAP), 'g');
 
-
 var defaultOptions = {
   code: chalk.yellow,
   blockquote: chalk.gray.italic,
@@ -27,6 +26,7 @@ var defaultOptions = {
   del: chalk.dim.gray.strikethrough,
   link: chalk.blue,
   href: chalk.blue.underline,
+  unescape: true
 };
 
 function Renderer(options, highlightOptions) {
@@ -47,6 +47,9 @@ Renderer.prototype.html = function(html) {
 };
 
 Renderer.prototype.heading = function(text, level, raw) {
+  var e = this.o.unescape ? unescapeEntities : identity;
+  text = e(text);
+
   var prefix = (new Array(level + 1)).join('#');
   if (level === 1) {
     return this.o.firstHeading(prefix + ' ' + text) + '\n';
@@ -59,8 +62,9 @@ Renderer.prototype.hr = function() {
 };
 
 Renderer.prototype.list = function(body, ordered) {
+  var e = this.o.unescape ? unescapeEntities : identity;
   if (ordered) {
-    return changeToOrdered(body) + '\n';
+    return changeToOrdered(e(body)) + '\n';
   }
   return body + '\n';
 };
@@ -70,7 +74,8 @@ Renderer.prototype.listitem = function(text) {
 };
 
 Renderer.prototype.paragraph = function(text) {
-  return this.o.paragraph(text) + '\n\n';
+  var e = this.o.unescape ? unescapeEntities : identity;
+  return this.o.paragraph(e(text)) + '\n\n';
 };
 
 Renderer.prototype.table = function(header, body) {
@@ -193,4 +198,17 @@ function generateTableRow(text) {
 
 function escapeRegExp(str) {
   return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}
+
+function unescapeEntities(html) {
+  return html
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'");
+}
+
+function identity (str) {
+  return str;
 }

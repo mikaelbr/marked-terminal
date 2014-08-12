@@ -1,7 +1,7 @@
 marked-terminal
 ===
 
-Early release of a custom Renderer for [marked](https://github.com/chjj/marked)
+> Custom Renderer for [marked](https://github.com/chjj/marked)
 allowing for printing Markdown to the Terminal. Supports pretty tables, syntax
 highlighting for javascript, and overriding all colors and styles.
 
@@ -86,6 +86,10 @@ var defaultOptions = {
   del: chalk.dim.gray.strikethrough,
   link: chalk.blue,
   href: chalk.blue.underline,
+
+  // Wheter or not to undo marked escaping
+  // of enitities (" -> &quot; etc)
+  unescape: true
 };
 ```
 

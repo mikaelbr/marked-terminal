@@ -4,7 +4,7 @@
   "description": "A custom render for marked to output to the Terminal",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha tests.js --reporter spec"
   },
   "keywords": [
     "marked",
@@ -27,7 +27,10 @@
   "directories": {
     "example": "example"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "marked": "^0.3.2",
+    "mocha": "^1.21.4"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/mikaelbr/marked-terminal.git"
