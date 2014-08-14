@@ -131,10 +131,12 @@ Renderer.prototype.link = function(href, title, text) {
     }
   }
 
+  var hasText = text && text !== href;
+
   var out = '';
-  if (text) out += text + ' (';
+  if (hasText) out += text + ' (';
   out +=  this.o.href(href);
-  if (text) out += ')';
+  if (hasText) out += ')';
 
   return this.o.link(out);
 };

@@ -27,6 +27,17 @@ describe('Renderer', function () {
     renderer: r
   });
 
+  it('should render links', function () {
+    var text = '[Google](http://google.com)';
+    var expected = 'Google (http://google.com)';
+    assert.equal(marked(text).trim(), expected);
+  });
+
+  it('should not show link href twice if link and url is equal', function () {
+    var text = 'http://google.com';
+    assert.equal(marked(text).trim(), text);
+  });
+
   it('should render html as html', function () {
     var html = '<strong>foo</strong>';
     assert.equal(marked(html).trim(), html);
