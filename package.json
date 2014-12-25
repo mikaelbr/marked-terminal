@@ -1,6 +1,6 @@
 {
   "name": "marked-terminal",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "A custom render for marked to output to the Terminal",
   "main": "index.js",
   "scripts": {
