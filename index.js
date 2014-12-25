@@ -70,7 +70,8 @@ Renderer.prototype.list = function(body, ordered) {
 };
 
 Renderer.prototype.listitem = function(text) {
-  return tab() + this.o.listitem('* ' + text) + '\n';
+  var e = this.o.unescape ? unescapeEntities : identity;
+  return tab() + this.o.listitem('* ' + e(text)) + '\n';
 };
 
 Renderer.prototype.paragraph = function(text) {
