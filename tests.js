@@ -50,9 +50,15 @@ describe('Renderer', function () {
       'This < is "foo". it\'s a & string';
 
     var expected = '# This < is "foo". it\'s a & string\n\n' +
-      '   This < is "foo". it\'s a & string\n\n' +
+      '    This < is "foo". it\'s a & string\n\n' +
       'This < is "foo". it\'s a & string\n' +
       'This < is "foo". it\'s a & string';
     assert.equal(marked(text).trim(), expected);
+  });
+
+  it('list items should be indented 4 spaces by default', function () {
+    var text = '* List item';
+    var expected = '    * List item\n\n'; // 4 leading spaces
+    assert.equal(marked(text), expected);
   });
 });
