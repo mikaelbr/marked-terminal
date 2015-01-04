@@ -177,7 +177,7 @@ function hr(inputHrStr) {
 
 function tab(size) {
   size = size || 4;
-  return (new Array(size)).join(' ');
+  return (new Array(size + 1)).join(' ');
 }
 
 function indentify(text) {
