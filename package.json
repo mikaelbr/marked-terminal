@@ -15,7 +15,7 @@
   ],
   "author": "Mikael Brevik",
   "license": "MIT",
-  "optionalDependencies": {
+  "peerDependencies": {
     "marked": "^0.3.2"
   },
   "dependencies": {
