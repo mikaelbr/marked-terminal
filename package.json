@@ -19,7 +19,7 @@
     "marked": "^0.3.2"
   },
   "dependencies": {
-    "cardinal": "^0.4.4",
+    "cardinal": "^0.5.0",
     "chalk": "^0.5.1",
     "cli-table": "^0.3.0",
     "node.extend": "^1.0.10"
