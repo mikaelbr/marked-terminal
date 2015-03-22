@@ -26,11 +26,13 @@ var defaultOptions = {
   del: chalk.dim.gray.strikethrough,
   link: chalk.blue,
   href: chalk.blue.underline,
-  unescape: true
+  unescape: true,
+  tableOptions: {}
 };
 
 function Renderer(options, highlightOptions) {
   this.o = extend(defaultOptions, options);
+  this.tableSettings = this.o.tableOptions;
   this.highlightOptions = highlightOptions || {};
 }
 
@@ -80,9 +82,9 @@ Renderer.prototype.paragraph = function(text) {
 };
 
 Renderer.prototype.table = function(header, body) {
-  var table = new Table({
+  var table = new Table(extend({
       head: generateTableRow(header)[0]
-  });
+  }, this.tableSettings));
   generateTableRow(body).forEach(function (row) {
     table.push(row);
   });

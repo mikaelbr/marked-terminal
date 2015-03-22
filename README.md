@@ -89,7 +89,10 @@ var defaultOptions = {
 
   // Wheter or not to undo marked escaping
   // of enitities (" -> &quot; etc)
-  unescape: true
+  unescape: true,
+
+  // Options passed to cli-table
+  tableOptions: {}
 };
 ```
 

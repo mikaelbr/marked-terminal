@@ -20,6 +20,10 @@ opts.forEach(function (opt) {
   defaultOptions[opt] = identity;
 });
 
+defaultOptions.tableOptions = {
+  chars: { 'top': '@@@@TABLE@@@@@' }
+}
+
 describe('Renderer', function () {
   var r = new Renderer(defaultOptions);
 
@@ -31,6 +35,17 @@ describe('Renderer', function () {
     var text = '[Google](http://google.com)';
     var expected = 'Google (http://google.com)';
     assert.equal(marked(text).trim(), expected);
+  });
+
+  it('should pass on options to table', function () {
+    var text = '| Lorem | Ipsum | Sit amet     | Dolar  |\n' +
+    '|------|------|----------|----------|\n' +
+    '| Row 1  | Value    | Value  | Value |\n' +
+    '| Row 2  | Value    | Value  | Value |\n' +
+    '| Row 3  | Value    | Value  | Value |\n' +
+    '| Row 4  | Value    | Value  | Value |';
+
+    assert.equal(marked(text).indexOf('@@@@TABLE@@@@@') !== -1, true);
   });
 
   it('should not show link href twice if link and url is equal', function () {
