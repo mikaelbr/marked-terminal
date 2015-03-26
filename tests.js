@@ -45,7 +45,7 @@ describe('Renderer', function () {
     '| Row 3  | Value    | Value  | Value |\n' +
     '| Row 4  | Value    | Value  | Value |';
 
-    assert.equal(marked(text).indexOf('@@@@TABLE@@@@@') !== -1, true);
+    assert.notEqual(marked(text).indexOf('@@@@TABLE@@@@@'), -1);
   });
 
   it('should not show link href twice if link and url is equal', function () {
@@ -70,4 +70,15 @@ describe('Renderer', function () {
       'This < is "foo". it\'s a & string';
     assert.equal(marked(text).trim(), expected);
   });
+
+
+  it('should not escape entities', function () {
+    var markdownText = "Usage | Syntax" + "\r\n" +
+    "------|-------" + "\r\n" +
+    "General |`$ shell <CommandParam>`";
+
+    assert.notEqual(marked(markdownText).indexOf('<CommandParam>'), -1);
+  });
+
+
 });

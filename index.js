@@ -82,10 +82,12 @@ Renderer.prototype.paragraph = function(text) {
 };
 
 Renderer.prototype.table = function(header, body) {
+  var e = this.o.unescape ? unescapeEntities : identity;
   var table = new Table(extend({
       head: generateTableRow(header)[0]
   }, this.tableSettings));
-  generateTableRow(body).forEach(function (row) {
+
+  generateTableRow(body, e).forEach(function (row) {
     table.push(row);
   });
   return this.o.table(table.toString()) + '\n';
@@ -187,9 +189,10 @@ function indentify(text) {
   return tab() + text.split('\n').join('\n' + tab());
 }
 
-function generateTableRow(text) {
+function generateTableRow(text, escape) {
   if (!text) return [];
-  var lines = text.split('\n');
+  escape = escape || identity;
+  var lines = escape(text).split('\n');
 
   var data = [];
   lines.forEach(function (line) {
