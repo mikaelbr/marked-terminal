@@ -65,12 +65,9 @@ Renderer.prototype.hr = function() {
 
 Renderer.prototype.list = function(body, ordered) {
   var e = this.o.unescape ? unescapeEntities : identity;
-  body = e(body);
-
-  if (ordered) {
-    body = changeToOrdered(body);
-  }
-  return indentLines(body);
+  body = indentLines(this.o.listitem(body));
+  if (!ordered) return body;
+  return changeToOrdered(body);
 };
 
 function indentLines (text) {
@@ -80,10 +77,8 @@ function indentLines (text) {
 Renderer.prototype.listitem = function(text) {
   var e = this.o.unescape ? unescapeEntities : identity;
   var isNested = ~text.indexOf('\n');
-  if (isNested) {
-    text = text.trim();
-  }
-  return '\n' + this.o.listitem('* ' + e(text));
+  if (isNested) text = text.trim();
+  return '\n * ' + e(text);
 };
 
 Renderer.prototype.paragraph = function(text) {
@@ -166,11 +161,12 @@ module.exports = Renderer;
 
 
 function changeToOrdered(text) {
+  console.log(arguments);
   var i = 1;
   return text.split('\n').reduce(function (acc, line) {
-    if (!line) return acc;
-    return acc + tab() + (i++) + '.' + line.substring(tab().length + 1) + '\n';
-  }, '');
+    if (!line) return '\n' + acc;
+    return acc + line.replace(/(\s*)\*/, '$1' + (i++) + '.') + '\n';
+  });
 }
 
 function highlight(code, lang, style, opts) {
