@@ -31,8 +31,6 @@ Use `-m` to auto commit and tag. Apply optional message and use `%s`
 as placeholder for the updated version. Default message is `v%s` where `%s`
 is replaced with new version.
 
-
-
 `--tag` (or `-t` for short) allows for overriding the tag name used.
 This does not change behaviour of the message, just the tag name.
 
@@ -63,4 +61,20 @@ $ mversion minor -m 'Bumped to v%s' --tag 'v%s-src'
 | Row 4  | Value    | Value  | Value |
 
 
+## And a nested list
+
+* out A
+* out B
+* out C
+* out 1
+* out 2
+    * out 2.1
+    * out 2.2
+        * out 2.2.1
+        * out 2.2.2
+        * out 2.2.3
+    * out 2.3
+* out 3
+  * out 2.1
+  * out 2.2
 

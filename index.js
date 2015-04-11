@@ -65,15 +65,27 @@ Renderer.prototype.hr = function() {
 
 Renderer.prototype.list = function(body, ordered) {
   var e = this.o.unescape ? unescapeEntities : identity;
+  body = e(body);
+
+  console.log(arguments);
+
   if (ordered) {
-    return changeToOrdered(e(body)) + '\n';
+    body = changeToOrdered(body);
   }
-  return body + '\n';
+  return indentLines(body);
 };
+
+function indentLines (text) {
+  return text.replace(/\n/g, '\n' + tab()) + '\n\n';
+}
 
 Renderer.prototype.listitem = function(text) {
   var e = this.o.unescape ? unescapeEntities : identity;
-  return tab() + this.o.listitem('* ' + e(text)) + '\n';
+  var isNested = ~text.indexOf('\n');
+  if (isNested) {
+    text = text.trim();
+  }
+  return '\n' + this.o.listitem('* ' + e(text));
 };
 
 Renderer.prototype.paragraph = function(text) {
