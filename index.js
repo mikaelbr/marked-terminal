@@ -67,8 +67,6 @@ Renderer.prototype.list = function(body, ordered) {
   var e = this.o.unescape ? unescapeEntities : identity;
   body = e(body);
 
-  console.log(arguments);
-
   if (ordered) {
     body = changeToOrdered(body);
   }
