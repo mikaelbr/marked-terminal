@@ -100,7 +100,7 @@ Renderer.prototype.table = function(header, body) {
   generateTableRow(body, e).forEach(function (row) {
     table.push(row);
   });
-  return this.o.table(table.toString()) + '\n';
+  return this.o.table(table.toString()) + '\n\n';
 };
 
 Renderer.prototype.tablerow = function(content) {
