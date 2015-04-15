@@ -2,13 +2,17 @@
 
 var chalk = require('chalk');
 var Table = require('cli-table');
-var extend = require('node.extend');
+var assign = require('lodash.assign');
 var cardinal = require('cardinal');
+var emoji = require('node-emoji');
 
 
 var TABLE_CELL_SPLIT = '^*||*^';
 var TABLE_ROW_WRAP = '*|*|*|*';
 var TABLE_ROW_WRAP_REGEXP = new RegExp(escapeRegExp(TABLE_ROW_WRAP), 'g');
+
+var COLON_REPLACER = '*#COLON|*';
+var COLON_REPLACER_REGEXP = new RegExp(escapeRegExp(COLON_REPLACER), 'g');
 
 var defaultOptions = {
   code: chalk.yellow,
@@ -27,13 +31,18 @@ var defaultOptions = {
   link: chalk.blue,
   href: chalk.blue.underline,
   unescape: true,
+  emoji: true,
   tableOptions: {}
 };
 
 function Renderer(options, highlightOptions) {
-  this.o = extend(defaultOptions, options);
+  this.o = assign({}, defaultOptions, options);
   this.tableSettings = this.o.tableOptions;
+  this.emoji = this.o.emoji ? insertEmojis : identity;
+  this.unescape = this.o.unescape ? unescapeEntities : identity;
   this.highlightOptions = highlightOptions || {};
+
+  this.transform = compose(undoColon, this.unescape, this.emoji);
 }
 
 Renderer.prototype.code = function(code, lang, escaped) {
@@ -49,8 +58,7 @@ Renderer.prototype.html = function(html) {
 };
 
 Renderer.prototype.heading = function(text, level, raw) {
-  var e = this.o.unescape ? unescapeEntities : identity;
-  text = e(text);
+  text = this.transform(text);
 
   var prefix = (new Array(level + 1)).join('#');
   if (level === 1) {
@@ -64,35 +72,28 @@ Renderer.prototype.hr = function() {
 };
 
 Renderer.prototype.list = function(body, ordered) {
-  var e = this.o.unescape ? unescapeEntities : identity;
   body = indentLines(this.o.listitem(body));
   if (!ordered) return body;
   return changeToOrdered(body);
 };
 
-function indentLines (text) {
-  return text.replace(/\n/g, '\n' + tab()) + '\n\n';
-}
-
 Renderer.prototype.listitem = function(text) {
-  var e = this.o.unescape ? unescapeEntities : identity;
   var isNested = ~text.indexOf('\n');
   if (isNested) text = text.trim();
-  return '\n * ' + e(text);
+  return '\n * ' + this.transform(text);
 };
 
 Renderer.prototype.paragraph = function(text) {
-  var e = this.o.unescape ? unescapeEntities : identity;
-  return this.o.paragraph(e(text)) + '\n\n';
+  var transform = compose(this.o.paragraph, this.transform);
+  return transform(text) + '\n\n';
 };
 
 Renderer.prototype.table = function(header, body) {
-  var e = this.o.unescape ? unescapeEntities : identity;
-  var table = new Table(extend({
+  var table = new Table(assign({}, {
       head: generateTableRow(header)[0]
   }, this.tableSettings));
 
-  generateTableRow(body, e).forEach(function (row) {
+  generateTableRow(body, this.transform).forEach(function (row) {
     table.push(row);
   });
   return this.o.table(table.toString()) + '\n\n';
@@ -116,7 +117,7 @@ Renderer.prototype.em = function(text) {
 };
 
 Renderer.prototype.codespan = function(text) {
-  return this.o.codespan(text);
+  return this.o.codespan(text.replace(/:/g, COLON_REPLACER));
 };
 
 Renderer.prototype.br = function() {
@@ -144,7 +145,7 @@ Renderer.prototype.link = function(href, title, text) {
   var hasText = text && text !== href;
 
   var out = '';
-  if (hasText) out += text + ' (';
+  if (hasText) out += this.emoji(text) + ' (';
   out +=  this.o.href(href);
   if (hasText) out += ')';
 
@@ -159,9 +160,11 @@ Renderer.prototype.image = function(href, title, text) {
 
 module.exports = Renderer;
 
+function indentLines (text) {
+  return text.replace(/\n/g, '\n' + tab()) + '\n\n';
+}
 
 function changeToOrdered(text) {
-  console.log(arguments);
   var i = 1;
   return text.split('\n').reduce(function (acc, line) {
     if (!line) return '\n' + acc;
@@ -181,6 +184,12 @@ function highlight(code, lang, style, opts) {
   }
 }
 
+function insertEmojis(text) {
+  return text.replace(/:([A-Za-z0-9_\-\+]+?):/g, function (emojiString) {
+    return emoji.get(emojiString) + ' ';
+  });
+}
+
 function hr(inputHrStr) {
   return (new Array(process.stdout.columns)).join(inputHrStr);
 }
@@ -188,6 +197,10 @@ function hr(inputHrStr) {
 function tab(size) {
   size = size || 4;
   return (new Array(size)).join(' ');
+}
+
+function undoColon (str) {
+  return str.replace(COLON_REPLACER_REGEXP, ':');
 }
 
 function indentify(text) {
@@ -225,4 +238,15 @@ function unescapeEntities(html) {
 
 function identity (str) {
   return str;
+}
+
+function compose () {
+  var funcs = arguments;
+  return function() {
+    var args = arguments;
+    for (var i = funcs.length; i-- > 0;) {
+      args = [funcs[i].apply(this, args)];
+    }
+    return args[0];
+  };
 }

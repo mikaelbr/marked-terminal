@@ -1,6 +1,6 @@
 
 var assert = require('assert');
-var Renderer = require('./');
+var Renderer = require('../');
 var marked = require('marked');
 
 
@@ -26,15 +26,14 @@ defaultOptions.tableOptions = {
 
 describe('Renderer', function () {
   var r = new Renderer(defaultOptions);
-
-  marked.setOptions({
+  var markedOptions = {
     renderer: r
-  });
+  };
 
   it('should render links', function () {
     var text = '[Google](http://google.com)';
     var expected = 'Google (http://google.com)';
-    assert.equal(marked(text).trim(), expected);
+    assert.equal(marked(text, markedOptions).trim(), expected);
   });
 
   it('should pass on options to table', function () {
@@ -45,17 +44,17 @@ describe('Renderer', function () {
     '| Row 3  | Value    | Value  | Value |\n' +
     '| Row 4  | Value    | Value  | Value |';
 
-    assert.notEqual(marked(text).indexOf('@@@@TABLE@@@@@'), -1);
+    assert.notEqual(marked(text, markedOptions).indexOf('@@@@TABLE@@@@@'), -1);
   });
 
   it('should not show link href twice if link and url is equal', function () {
     var text = 'http://google.com';
-    assert.equal(marked(text).trim(), text);
+    assert.equal(marked(text, markedOptions).trim(), text);
   });
 
   it('should render html as html', function () {
     var html = '<strong>foo</strong>';
-    assert.equal(marked(html).trim(), html);
+    assert.equal(marked(html, markedOptions).trim(), html);
   });
 
   it('should not escape entities', function () {
@@ -68,16 +67,26 @@ describe('Renderer', function () {
       '   This < is "foo". it\'s a & string\n\n' +
       'This < is "foo". it\'s a & string\n' +
       'This < is "foo". it\'s a & string';
-    assert.equal(marked(text).trim(), expected);
+    assert.equal(marked(text, markedOptions).trim(), expected);
   });
 
+  it('should not translate emojis inside codespans', function () {
+    var markdownText = 'Some `:emoji:`';
+
+    assert.notEqual(marked(markdownText, markedOptions).indexOf(':emoji'), -1);
+  });
+
+  it('should translate emojis', function () {
+    var markdownText = 'Some :emoji:';
+    assert.equal(marked(markdownText, markedOptions).indexOf(':emoji'), -1);
+  });
 
   it('should not escape entities', function () {
-    var markdownText = "Usage | Syntax" + "\r\n" +
-    "------|-------" + "\r\n" +
-    "General |`$ shell <CommandParam>`";
+    var markdownText = 'Usage | Syntax' + '\r\n' +
+    '------|-------' + '\r\n' +
+    'General |`$ shell <CommandParam>`';
 
-    assert.notEqual(marked(markdownText).indexOf('<CommandParam>'), -1);
+    assert.notEqual(marked(markdownText, markedOptions).indexOf('<CommandParam>'), -1);
   });
 
 
