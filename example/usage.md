@@ -78,7 +78,7 @@ $ mversion minor -m 'Bumped to v%s' --tag 'v%s-src'
   * out 2.1
   * out 2.2
 
-Here are some `emojis`:  :cake::tada: `some thing :smiley:` :cactus:
+Here are some `emojis`:  :cake::tada: `some thing :smiley:` :cactus: :someundefined:
 And here are some proper emojis: 😀
 
 Inside code blocks:

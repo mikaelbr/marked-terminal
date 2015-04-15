@@ -71,14 +71,19 @@ describe('Renderer', function () {
   });
 
   it('should not translate emojis inside codespans', function () {
-    var markdownText = 'Some `:emoji:`';
+    var markdownText = 'Some `:+1:`';
 
-    assert.notEqual(marked(markdownText, markedOptions).indexOf(':emoji'), -1);
+    assert.notEqual(marked(markdownText, markedOptions).indexOf(':+1:'), -1);
   });
 
   it('should translate emojis', function () {
-    var markdownText = 'Some :emoji:';
-    assert.equal(marked(markdownText, markedOptions).indexOf(':emoji'), -1);
+    var markdownText = 'Some :+1:';
+    assert.equal(marked(markdownText, markedOptions).indexOf(':+1'), -1);
+  });
+
+  it('should show default if not supported emojis', function () {
+    var markdownText = 'Some :someundefined:';
+    assert.notEqual(marked(markdownText, markedOptions).indexOf(':someundefined:'), -1);
   });
 
   it('should not escape entities', function () {

@@ -186,7 +186,9 @@ function highlight(code, lang, style, opts) {
 
 function insertEmojis(text) {
   return text.replace(/:([A-Za-z0-9_\-\+]+?):/g, function (emojiString) {
-    return emoji.get(emojiString) + ' ';
+    var emojiSign = emoji.get(emojiString);
+    if (!emojiSign) return emojiString;
+    return emojiSign + ' ';
   });
 }
 
