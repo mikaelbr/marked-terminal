@@ -91,6 +91,9 @@ var defaultOptions = {
   // of enitities (" -> &quot; etc)
   unescape: true,
 
+  // Whether or not to show emojis
+  emoji: true,
+
   // Options passed to cli-table
   tableOptions: {}
 };
