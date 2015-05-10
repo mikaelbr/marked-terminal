@@ -8,6 +8,10 @@ var identity = function (o) {
   return o;
 };
 
+function stripTermEsc(str) {
+  return str.replace(/\u001b\[\d{1,2}m/g, "");
+}
+
 var opts = [
   'code', 'blockquote', 'html', 'heading',
   'firstHeading', 'hr', 'listitem', 'table',
@@ -20,8 +24,25 @@ opts.forEach(function (opt) {
   defaultOptions[opt] = identity;
 });
 
+var defaultOptions2 = {};
+opts.forEach(function (opt) {
+  defaultOptions[opt] = identity;
+});
+defaultOptions2.reflowText = true;
+defaultOptions2.showSectionPrefix = false;
+defaultOptions2.width = 10;
+
+
 defaultOptions.tableOptions = {
   chars: { 'top': '@@@@TABLE@@@@@' }
+}
+
+function markup(str) {
+    var r = new Renderer(defaultOptions2);
+    var markedOptions = {
+      renderer: r,
+    };
+    return stripTermEsc(marked(str, markedOptions));
 }
 
 describe('Renderer', function () {
@@ -94,5 +115,28 @@ describe('Renderer', function () {
     assert.notEqual(marked(markdownText, markedOptions).indexOf('<CommandParam>'), -1);
   });
 
+  it('should not reflow paragraph', function () {
+    text = 'Now is the\n',
+    expected = 'Now is the\n\n';
+    assert.equal(markup(text), expected);
+  });
+
+  it('should reflow paragraph', function () {
+    text = 'Now is this time\n',
+    expected = 'Now is\nthis time\n\n';
+    assert.equal(markup(text), expected);
+  });
+
+  it('should reflow header', function () {
+    text = '# Now is this time',
+    expected = 'Now is\nthis time\n';
+    assert.equal(markup(text, markedOptions), expected);
+  });
+
+  it('should nuke section header', function () {
+    var text = '# Contents';
+    var expected = "Contents\n";
+    assert.equal(markup(text), expected);
+  });
 
 });
