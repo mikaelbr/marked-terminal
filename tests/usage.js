@@ -38,11 +38,11 @@ defaultOptions.tableOptions = {
 }
 
 function markup(str) {
-    var r = new Renderer(defaultOptions2);
-    var markedOptions = {
-      renderer: r,
-    };
-    return stripTermEsc(marked(str, markedOptions));
+  var r = new Renderer(defaultOptions2);
+  var markedOptions = {
+    renderer: r,
+  };
+  return stripTermEsc(marked(str, markedOptions));
 }
 
 describe('Renderer', function () {
@@ -115,33 +115,28 @@ describe('Renderer', function () {
     assert.notEqual(marked(markdownText, markedOptions).indexOf('<CommandParam>'), -1);
   });
 
-  it('should relow paragraph', function () {
-      var markedOptions = {
-	renderer: r,
-	relowParagraph: true,
-	width: 10
-      },
-	markdownText = 'Now is the time\n',
-	expected = 'Now is the time\n\n';
-    assert.equal(marked(markdownText, markedOptions), expected);
+  it('should reflow paragraph', function () {
+    text = 'Now is the time\n',
+    expected = 'Now is the\ntime\n\n';
+    assert.equal(markup(text), expected);
   });
 
   it('should nuke section header', function () {
-    var text = '# This < is "foo". it\'s a & string\n' +
-      '> This < is "foo". it\'s a & string\n\n' +
-      'This < is **"foo"**. it\'s a & string\n' +
-      'This < is "foo". it\'s a & string';
+    text = '# Contents\n',
+    expected = 'Contents\n';
+    assert.equal(markup(text), expected);
+  });
 
-    var r = new Renderer({showSectionPrefix: false});
-    var markedOptions = {
-      renderer: r,
-      showSectionPrefix: false
-    };
-    var expected = 'This < is "foo". it\'s a & string\n\n' +
-      '   This < is "foo". it\'s a & string\n\n' +
-      'This < is "foo". it\'s a & string\n' +
-      'This < is "foo". it\'s a & string\n\n';
-    assert.equal(stripTermEsc(marked(text, markedOptions)), expected);
+  it('should reflow and nuke section header', function () {
+    text = '# Now is the time\n',
+    expected = 'Now is the\ntime\n';
+    assert.equal(markup(text), expected);
+  });
+
+  it('should preserve line breaks', function () {
+    text = 'Now  \nis    \nthe time\n',
+    expected = 'Now\nis\nthe time\n\n';
+    assert.equal(markup(text), expected);
   });
 
 });

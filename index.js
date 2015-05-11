@@ -50,9 +50,16 @@ function Renderer(options, highlightOptions) {
 
 // Compute length of str not including ANSI escape codes.
 // See http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
-Renderer.prototype.textLength = function(str) {
+function textLength(str) {
   return str.replace(/\u001b\[(?:\d{1,3})(?:;\d{1,3})*m/g, "").length;
 };
+
+Renderer.prototype.textLength = textLength;
+
+function fixHardReturn(str, reflow) {
+  return reflow ? text.replace(/\r\n/, /\n/g) : str;
+}
+
 
 Renderer.prototype.code = function(code, lang, escaped) {
   return '\n' + indentify(highlight(code, lang, this.o.code, this.highlightOptions)) + '\n\n';
@@ -131,15 +138,20 @@ Renderer.prototype.strong = function(text) {
 };
 
 Renderer.prototype.em = function(text) {
+  text = fixHardReturn(text, this.o.reflowText);
   return this.o.em(text);
 };
 
 Renderer.prototype.codespan = function(text) {
+  text = fixHardReturn(text, this.o.reflowText);
   return this.o.codespan(text.replace(/:/g, COLON_REPLACER));
 };
 
 Renderer.prototype.br = function() {
-  return '\n';
+  // Previously \r\n was turned into \n in marked's lexer-
+  // preprocessing step. We will use here \r\n to indicate a hard
+  // (non-reflowed) return.
+  return this.o.reflowText ? '\r\n' : '\n';
 };
 
 Renderer.prototype.del = function(text) {
@@ -178,25 +190,34 @@ Renderer.prototype.image = function(href, title, text) {
 
 module.exports = Renderer;
 
+// Munge \n's and spaces in "text" so that the number of
+// characters between \n's is less than or equal to "width".
 function reflowText (text, width) {
-  var words = text.split(/[ \t\n]+/),
-      column = 0,
-      nextText = '';
-  words.forEach(function (word) {
-    var addOne = column != 0;
-    if ((column + this.textLength(word) + addOne) > width) {
-      nextText += "\n";
-      column = 0;
-    } else {
-      if (addOne) {
-	nextText += " ";
-	column += 1;
+  // Recall that \r\n is a hard break inserted by
+  // Renderer.prototype.br
+  var sections = text.split(/\r\n/),
+      reflowed = [];
+  sections.forEach(function (section) {
+    var words = section.split(/[ \t\n]+/),
+	column = 0,
+	nextText = '';
+    words.forEach(function (word) {
+      var addOne = column != 0;
+      if ((column + textLength(word) + addOne) > width) {
+	nextText += "\n";
+	column = 0;
+      } else {
+	if (addOne) {
+	  nextText += " ";
+	  column += 1;
+	}
       }
-    }
-    nextText += word;
-    column += this.textLength(word);
+      nextText += word;
+      column += textLength(word);
+    });
+    reflowed.push(nextText);
   });
-  return nextText;
+  return reflowed.join('\n');
 }
 
 function indentLines (text) {
@@ -212,6 +233,7 @@ function changeToOrdered(text) {
 }
 
 function highlight(code, lang, style, opts) {
+  code = fixHardReturn(code, this.o.reflowText);
   if (lang !== 'javascript' && lang !== 'js') {
     return style(code);
   }
