@@ -32,8 +32,15 @@ var defaultOptions = {
   href: chalk.blue.underline,
   unescape: true,
   emoji: true,
+  width: 80,
+  showSectionPrefix: true,
+  reflowText: false,
   tableOptions: {}
 };
+
+function textLength(str) {
+  return str.replace(/\u001b\[\d{1,2}m/g, "").length;
+}
 
 function Renderer(options, highlightOptions) {
   this.o = assign({}, defaultOptions, options);
@@ -60,11 +67,16 @@ Renderer.prototype.html = function(html) {
 Renderer.prototype.heading = function(text, level, raw) {
   text = this.transform(text);
 
-  var prefix = (new Array(level + 1)).join('#');
-  if (level === 1) {
-    return this.o.firstHeading(prefix + ' ' + text) + '\n';
+  var prefix = this.o.showSectionPrefix ?
+    (new Array(level + 1)).join('#')+' ' : '';
+  text = prefix + text;
+  if (this.o.reflowText) {
+      text = reflowText(text, this.o.width);
   }
-  return this.o.heading(prefix + ' ' + text) + '\n';
+  if (level === 1) {
+    return this.o.firstHeading(text) + '\n';
+  }
+  return this.o.heading(text) + '\n';
 };
 
 Renderer.prototype.hr = function() {
@@ -85,7 +97,11 @@ Renderer.prototype.listitem = function(text) {
 
 Renderer.prototype.paragraph = function(text) {
   var transform = compose(this.o.paragraph, this.transform);
-  return transform(text) + '\n\n';
+  text = transform(text);
+  if (this.o.reflowText) {
+    text = reflowText(text, this.o.width);
+  }
+  return text + '\n\n';
 };
 
 Renderer.prototype.table = function(header, body) {
@@ -159,6 +175,27 @@ Renderer.prototype.image = function(href, title, text) {
 };
 
 module.exports = Renderer;
+
+function reflowText (text, width) {
+    var words = text.split(/[ \t\n]+/),
+	column = 0,
+	nextText = '';
+    words.forEach(function (word) {
+	var addOne = column != 0;
+        if ((column + textLength(word) + addOne) > width) {
+            nextText += "\n";
+	    column = 0;
+	} else {
+            if (addOne) {
+		nextText += " ";
+		column += 1;
+	    }
+	}
+	nextText += word;
+	column += textLength(word);
+    });
+    return nextText;
+}
 
 function indentLines (text) {
   return text.replace(/\n/g, '\n' + tab()) + '\n\n';
