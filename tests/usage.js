@@ -37,10 +37,12 @@ defaultOptions.tableOptions = {
   chars: { 'top': '@@@@TABLE@@@@@' }
 }
 
-function markup(str) {
+function markup(str, gfm) {
+  gfm || (gfm = false);
   var r = new Renderer(defaultOptions2);
   var markedOptions = {
     renderer: r,
+    gfm: gfm
   };
   return stripTermEsc(marked(str, markedOptions));
 }
@@ -133,10 +135,16 @@ describe('Renderer', function () {
     assert.equal(markup(text), expected);
   });
 
-  it('should preserve line breaks', function () {
-    text = 'Now  \nis    \nthe time\n',
-    expected = 'Now\nis\nthe time\n\n';
-    assert.equal(markup(text), expected);
+  it('should preserve line breaks (non gfm)', function () {
+    text = 'Now  \nis    \nthe<br />time\n',
+    expected = 'Now\nis\nthe<br\n/>time\n\n';
+    assert.equal(markup(text, false), expected);
+  });
+
+  it('should preserve line breaks (gfm)', function () {
+    text = 'Now  \nis    \nthe<br />time\n',
+    expected = 'Now\nis\nthe\ntime\n\n';
+    assert.equal(markup(text, true), expected);
   });
 
 });

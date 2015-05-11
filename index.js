@@ -14,6 +14,14 @@ var TABLE_ROW_WRAP_REGEXP = new RegExp(escapeRegExp(TABLE_ROW_WRAP), 'g');
 var COLON_REPLACER = '*#COLON|*';
 var COLON_REPLACER_REGEXP = new RegExp(escapeRegExp(COLON_REPLACER), 'g');
 
+// HARD_RETURN holds a character sequence used to indicate text has a
+// hard (no-reflowing) line break.  Previously \r and \r\n were turned
+// into \n in marked's lexer- preprocessing step. So \r is safe to use
+// to indicate a hard (non-reflowed) return.
+var HARD_RETURN = '\r',
+    HARD_RETURN_RE = new RegExp(HARD_RETURN),
+    HARD_RETURN_GFM_RE = new RegExp(HARD_RETURN + '|<br />');
+
 var defaultOptions = {
   code: chalk.yellow,
   blockquote: chalk.gray.italic,
@@ -57,7 +65,7 @@ function textLength(str) {
 Renderer.prototype.textLength = textLength;
 
 function fixHardReturn(str, reflow) {
-  return reflow ? text.replace(/\r\n/, /\n/g) : str;
+  return reflow ? text.replace(HARD_RETURN, /\n/g) : str;
 }
 
 
@@ -80,7 +88,7 @@ Renderer.prototype.heading = function(text, level, raw) {
     (new Array(level + 1)).join('#')+' ' : '';
   text = prefix + text;
   if (this.o.reflowText) {
-      text = reflowText(text, this.o.width);
+    text = reflowText(text, this.o.width, this.options.gfm);
   }
   if (level === 1) {
     return this.o.firstHeading(text) + '\n';
@@ -108,7 +116,7 @@ Renderer.prototype.paragraph = function(text) {
   var transform = compose(this.o.paragraph, this.transform);
   text = transform(text);
   if (this.o.reflowText) {
-    text = reflowText(text, this.o.width);
+    text = reflowText(text, this.o.width, this.options.gfm);
   }
   return text + '\n\n';
 };
@@ -148,10 +156,7 @@ Renderer.prototype.codespan = function(text) {
 };
 
 Renderer.prototype.br = function() {
-  // Previously \r\n was turned into \n in marked's lexer-
-  // preprocessing step. We will use here \r\n to indicate a hard
-  // (non-reflowed) return.
-  return this.o.reflowText ? '\r\n' : '\n';
+  return this.o.reflowText ? HARD_RETURN : '\n';
 };
 
 Renderer.prototype.del = function(text) {
@@ -192,10 +197,11 @@ module.exports = Renderer;
 
 // Munge \n's and spaces in "text" so that the number of
 // characters between \n's is less than or equal to "width".
-function reflowText (text, width) {
-  // Recall that \r\n is a hard break inserted by
-  // Renderer.prototype.br
-  var sections = text.split(/\r\n/),
+function reflowText (text, width, gfm) {
+  // Hard break was inserted by Renderer.prototype.br or is
+  // <br /> when gfm is true
+  var splitRe = gfm ? HARD_RETURN_GFM_RE : HARD_RETURN_RE,
+      sections = text.split(splitRe),
       reflowed = [];
   sections.forEach(function (section) {
     var words = section.split(/[ \t\n]+/),
