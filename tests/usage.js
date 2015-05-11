@@ -115,28 +115,33 @@ describe('Renderer', function () {
     assert.notEqual(marked(markdownText, markedOptions).indexOf('<CommandParam>'), -1);
   });
 
-  it('should not reflow paragraph', function () {
-    text = 'Now is the\n',
-    expected = 'Now is the\n\n';
-    assert.equal(markup(text), expected);
-  });
-
-  it('should reflow paragraph', function () {
-    text = 'Now is this time\n',
-    expected = 'Now is\nthis time\n\n';
-    assert.equal(markup(text), expected);
-  });
-
-  it('should reflow header', function () {
-    text = '# Now is this time',
-    expected = 'Now is\nthis time\n';
-    assert.equal(markup(text, markedOptions), expected);
+  it('should relow paragraph', function () {
+      var markedOptions = {
+	renderer: r,
+	relowParagraph: true,
+	width: 10
+      },
+	markdownText = 'Now is the time\n',
+	expected = 'Now is the time\n\n';
+    assert.equal(marked(markdownText, markedOptions), expected);
   });
 
   it('should nuke section header', function () {
-    var text = '# Contents';
-    var expected = "Contents\n";
-    assert.equal(markup(text), expected);
+    var text = '# This < is "foo". it\'s a & string\n' +
+      '> This < is "foo". it\'s a & string\n\n' +
+      'This < is **"foo"**. it\'s a & string\n' +
+      'This < is "foo". it\'s a & string';
+
+    var r = new Renderer({showSectionPrefix: false});
+    var markedOptions = {
+      renderer: r,
+      showSectionPrefix: false
+    };
+    var expected = 'This < is "foo". it\'s a & string\n\n' +
+      '   This < is "foo". it\'s a & string\n\n' +
+      'This < is "foo". it\'s a & string\n' +
+      'This < is "foo". it\'s a & string\n\n';
+    assert.equal(stripTermEsc(marked(text, markedOptions)), expected);
   });
 
 });

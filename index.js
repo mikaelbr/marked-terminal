@@ -38,10 +38,6 @@ var defaultOptions = {
   tableOptions: {}
 };
 
-function textLength(str) {
-  return str.replace(/\u001b\[\d{1,2}m/g, "").length;
-}
-
 function Renderer(options, highlightOptions) {
   this.o = assign({}, defaultOptions, options);
   this.tableSettings = this.o.tableOptions;
@@ -50,7 +46,13 @@ function Renderer(options, highlightOptions) {
   this.highlightOptions = highlightOptions || {};
 
   this.transform = compose(undoColon, this.unescape, this.emoji);
-}
+};
+
+// Compute length of str not including ANSI escape codes.
+// See http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
+Renderer.prototype.textLength = function(str) {
+  return str.replace(/\u001b\[(?:\d{1,3})(?:;\d{1,3})*m/g, "").length;
+};
 
 Renderer.prototype.code = function(code, lang, escaped) {
   return '\n' + indentify(highlight(code, lang, this.o.code, this.highlightOptions)) + '\n\n';
@@ -177,24 +179,24 @@ Renderer.prototype.image = function(href, title, text) {
 module.exports = Renderer;
 
 function reflowText (text, width) {
-    var words = text.split(/[ \t\n]+/),
-	column = 0,
-	nextText = '';
-    words.forEach(function (word) {
-	var addOne = column != 0;
-        if ((column + textLength(word) + addOne) > width) {
-            nextText += "\n";
-	    column = 0;
-	} else {
-            if (addOne) {
-		nextText += " ";
-		column += 1;
-	    }
-	}
-	nextText += word;
-	column += textLength(word);
-    });
-    return nextText;
+  var words = text.split(/[ \t\n]+/),
+      column = 0,
+      nextText = '';
+  words.forEach(function (word) {
+    var addOne = column != 0;
+    if ((column + this.textLength(word) + addOne) > width) {
+      nextText += "\n";
+      column = 0;
+    } else {
+      if (addOne) {
+	nextText += " ";
+	column += 1;
+      }
+    }
+    nextText += word;
+    column += this.textLength(word);
+  });
+  return nextText;
 }
 
 function indentLines (text) {
