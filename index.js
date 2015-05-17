@@ -64,13 +64,13 @@ function textLength(str) {
 
 Renderer.prototype.textLength = textLength;
 
-function fixHardReturn(str, reflow) {
-  return reflow ? text.replace(HARD_RETURN, /\n/g) : str;
+function fixHardReturn(text, reflow) {
+  return reflow ? text.replace(HARD_RETURN, /\n/g) : text;
 }
 
 
 Renderer.prototype.code = function(code, lang, escaped) {
-  return '\n' + indentify(highlight(code, lang, this.o.code, this.highlightOptions)) + '\n\n';
+  return '\n' + indentify(highlight(code, lang, this.o, this.highlightOptions)) + '\n\n';
 };
 
 Renderer.prototype.blockquote = function(quote) {
@@ -97,7 +97,7 @@ Renderer.prototype.heading = function(text, level, raw) {
 };
 
 Renderer.prototype.hr = function() {
-  return this.o.hr(hr('-')) + '\n';
+  return this.o.hr(hr('-', this.o.reflowText && this.o.width)) + '\n';
 };
 
 Renderer.prototype.list = function(body, ordered) {
@@ -203,20 +203,20 @@ function reflowText (text, width, gfm) {
   var splitRe = gfm ? HARD_RETURN_GFM_RE : HARD_RETURN_RE,
       sections = text.split(splitRe),
       reflowed = [];
+
   sections.forEach(function (section) {
     var words = section.split(/[ \t\n]+/),
-	column = 0,
-	nextText = '';
+        column = 0,
+        nextText = '';
+
     words.forEach(function (word) {
       var addOne = column != 0;
       if ((column + textLength(word) + addOne) > width) {
-	nextText += "\n";
-	column = 0;
-      } else {
-	if (addOne) {
-	  nextText += " ";
-	  column += 1;
-	}
+        nextText += '\n';
+        column = 0;
+      } else if (addOne) {
+        nextText += " ";
+        column += 1;
       }
       nextText += word;
       column += textLength(word);
@@ -238,14 +238,16 @@ function changeToOrdered(text) {
   });
 }
 
-function highlight(code, lang, style, opts) {
-  code = fixHardReturn(code, this.o.reflowText);
+function highlight(code, lang, opts, hightlightOpts) {
+  var style = opts.code;
+
+  code = fixHardReturn(code, opts.reflowText);
   if (lang !== 'javascript' && lang !== 'js') {
     return style(code);
   }
 
   try {
-    return cardinal.highlight(code, opts);
+    return cardinal.highlight(code, hightlightOpts);
   } catch (e) {
     return style(code);
   }
@@ -259,8 +261,9 @@ function insertEmojis(text) {
   });
 }
 
-function hr(inputHrStr) {
-  return (new Array(process.stdout.columns)).join(inputHrStr);
+function hr(inputHrStr, length) {
+  length = length || process.stdout.columns;
+  return (new Array(length)).join(inputHrStr);
 }
 
 function tab(size) {

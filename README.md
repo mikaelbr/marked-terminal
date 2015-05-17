@@ -71,6 +71,7 @@ Default values are:
 
 ```javascript
 var defaultOptions = {
+  // Colors
   code: chalk.yellow,
   blockquote: chalk.gray.italic,
   html: chalk.gray,
@@ -86,6 +87,13 @@ var defaultOptions = {
   del: chalk.dim.gray.strikethrough,
   link: chalk.blue,
   href: chalk.blue.underline,
+
+  // Reflow and print-out width
+  width: 80, // only applicable when reflow is true
+  reflowText: false,
+
+  // Should it prefix headers?
+  showSectionPrefix: true,
 
   // Wheter or not to undo marked escaping
   // of enitities (" -> &quot; etc)
