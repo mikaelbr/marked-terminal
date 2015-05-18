@@ -6,6 +6,9 @@
   "scripts": {
     "test": "mocha tests/*.js --reporter spec"
   },
+  "files": [
+    "index.js"
+  ],
   "keywords": [
     "marked",
     "render",
