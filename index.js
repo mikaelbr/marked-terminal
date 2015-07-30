@@ -6,14 +6,6 @@ var assign = require('lodash.assign');
 var cardinal = require('cardinal');
 var emoji = require('node-emoji');
 
-if (!chalk.enabled) {
-  cardinal = {
-    highlight: function (code) {
-      return code;
-    }
-  };
-}
-
 var TABLE_CELL_SPLIT = '^*||*^';
 var TABLE_ROW_WRAP = '*|*|*|*';
 var TABLE_ROW_WRAP_REGEXP = new RegExp(escapeRegExp(TABLE_ROW_WRAP), 'g');
@@ -250,6 +242,8 @@ function changeToOrdered(text) {
 }
 
 function highlight(code, lang, opts, hightlightOpts) {
+  if (!chalk.enabled) return code;
+
   var style = opts.code;
 
   code = fixHardReturn(code, opts.reflowText);
