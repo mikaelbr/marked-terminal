@@ -6,6 +6,13 @@ var assign = require('lodash.assign');
 var cardinal = require('cardinal');
 var emoji = require('node-emoji');
 
+if (!chalk.enabled) {
+  cardinal = {
+    highlight: function (code) {
+      return code;
+    }
+  };
+}
 
 var TABLE_CELL_SPLIT = '^*||*^';
 var TABLE_ROW_WRAP = '*|*|*|*';
