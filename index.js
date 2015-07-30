@@ -68,6 +68,7 @@ function fixHardReturn(text, reflow) {
   return reflow ? text.replace(HARD_RETURN, /\n/g) : text;
 }
 
+Renderer.prototype.text = identity;
 
 Renderer.prototype.code = function(code, lang, escaped) {
   return '\n' + indentify(highlight(code, lang, this.o, this.highlightOptions)) + '\n\n';
