@@ -38,6 +38,7 @@ var defaultOptions = {
   del: chalk.dim.gray.strikethrough,
   link: chalk.blue,
   href: chalk.blue.underline,
+  text: identity,
   unescape: true,
   emoji: true,
   width: 80,
@@ -68,7 +69,9 @@ function fixHardReturn(text, reflow) {
   return reflow ? text.replace(HARD_RETURN, /\n/g) : text;
 }
 
-Renderer.prototype.text = identity;
+Renderer.prototype.text = function (text) {
+  return this.o.text(text);
+};
 
 Renderer.prototype.code = function(code, lang, escaped) {
   return '\n' + indentify(highlight(code, lang, this.o, this.highlightOptions)) + '\n\n';
