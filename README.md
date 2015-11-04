@@ -17,7 +17,7 @@ npm install marked marked-terminal
 
 ```javascript
 var marked = require('marked');
-var TerminalRenderer = require('../');
+var TerminalRenderer = require('marked-terminal');
 
 marked.setOptions({
   // Define custom renderer
