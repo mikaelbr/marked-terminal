@@ -41,14 +41,14 @@ or you can create a `.cardinalrc` as defined in the [cardinal README](https://gi
 
 Having the following markdown input:
 
-```md
+<pre>
 ```js
 var foo = function(bar) {
   console.log(bar);
 };
 foo('Hello');
 ```
-```
+</pre>
 
 ...we will convert it into terminal format:
 
