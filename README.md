@@ -9,7 +9,7 @@ Could for instance be used to print usage information.
 
 ## Install
 
-```
+```sh
 npm install marked marked-terminal
 ```
 
@@ -17,7 +17,7 @@ npm install marked marked-terminal
 
 ```javascript
 var marked = require('marked');
-var TerminalRenderer = require('../');
+var TerminalRenderer = require('marked-terminal');
 
 marked.setOptions({
   // Define custom renderer
@@ -39,16 +39,18 @@ Also have support for syntax highlighting using [cardinal](https://github.com/th
 You can override highlight defaults by passing in settings as the second argument for TerminalRenderer,
 or you can create a `.cardinalrc` as defined in the [cardinal README](https://github.com/thlorenz/cardinal).
 
-Example source
+Having the following markdown input:
+
+<pre>
+```js
+var foo = function(bar) {
+  console.log(bar);
+};
+foo('Hello');
 ```
-  ``js
-  var foo = function(bar) {
-    console.log(bar);
-  };
-  foo('Hello');
-  ``
-```
-(But with proper syntax. Using "``" to avoid Github markdown)
+</pre>
+
+...we will convert it into terminal format:
 
 ```javascript
 // Show the parsed data
