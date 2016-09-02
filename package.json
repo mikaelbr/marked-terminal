@@ -22,7 +22,7 @@
     "marked": "^0.3.3"
   },
   "dependencies": {
-    "cardinal": "^0.5.0",
+    "cardinal": "^1.0.0",
     "chalk": "^1.0.0",
     "cli-table": "^0.3.1",
     "lodash.assign": "^3.0.0",
