@@ -85,4 +85,21 @@ describe('Options', function () {
     );
   });
 
+  it('should support mulitple tab characters', function () {
+    var options = assign({}, defaultOptions, { tab: '\t\t' });
+    var r = new Renderer(options);
+
+    var blockquoteText = '> Blockquote'
+    assert.equal(
+      marked(blockquoteText, { renderer: r }),
+      '\n\t\tBlockquote\n\n'
+    );
+
+    var listText = '* List Item'
+    assert.equal(
+      marked(listText, { renderer: r }),
+      '\n\t\t * List Item\n\n'
+    );
+  });
+
 });
