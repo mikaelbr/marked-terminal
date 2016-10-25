@@ -97,7 +97,7 @@ var defaultOptions = {
   // Should it prefix headers?
   showSectionPrefix: true,
 
-  // Wheter or not to undo marked escaping
+  // Whether or not to undo marked escaping
   // of enitities (" -> &quot; etc)
   unescape: true,
 
@@ -105,7 +105,11 @@ var defaultOptions = {
   emoji: true,
 
   // Options passed to cli-table
-  tableOptions: {}
+  tableOptions: {},
+
+  // The size of tabs, in spaces
+  // or the replacement for spaces (only tabs supported)
+  tab: 3
 };
 ```
 
