@@ -107,9 +107,8 @@ var defaultOptions = {
   // Options passed to cli-table
   tableOptions: {},
 
-  // The size of tabs, in spaces
-  // or the replacement for spaces (only tabs supported)
-  tab: 3
+  // The size of tabs in number of spaces or as tab characters
+  tab: 3 // examples: 4, 2, \t, \t\t
 };
 ```
 
