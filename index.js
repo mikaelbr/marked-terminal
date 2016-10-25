@@ -339,6 +339,6 @@ function sanitizeTab (tab, fallbackTab) {
   } else if (typeof tab === 'string' && isAllowedTabString(tab)) {
     return tab;
   } else {
-    return fallbackTab;
+    return (new Array(fallbackTab + 1)).join(' ');
   }
 }

@@ -51,6 +51,23 @@ describe('Options', function () {
     );
   });
 
+  it('should use default tabs if passing not supported string', function () {
+    var options = assign({}, defaultOptions, { tab: 'dsakdskajhdsa' });
+    var r = new Renderer(options);
+
+    var blockquoteText = '> Blockquote'
+    assert.equal(
+      marked(blockquoteText, { renderer: r }),
+      '\n   Blockquote\n\n'
+    );
+
+    var listText = '* List Item'
+    assert.equal(
+      marked(listText, { renderer: r }),
+      '\n    * List Item\n\n'
+    );
+  });
+
   it('should change tabs by allowed characters', function () {
     var options = assign({}, defaultOptions, { tab: '\t' });
     var r = new Renderer(options);
