@@ -13,6 +13,8 @@ var TABLE_ROW_WRAP_REGEXP = new RegExp(escapeRegExp(TABLE_ROW_WRAP), 'g');
 var COLON_REPLACER = '*#COLON|*';
 var COLON_REPLACER_REGEXP = new RegExp(escapeRegExp(COLON_REPLACER), 'g');
 
+var TAB_ALLOWED_CHARACTERS = ['\t'];
+
 // HARD_RETURN holds a character sequence used to indicate text has a
 // hard (no-reflowing) line break.  Previously \r and \r\n were turned
 // into \n in marked's lexer- preprocessing step. So \r is safe to use
@@ -43,11 +45,13 @@ var defaultOptions = {
   width: 80,
   showSectionPrefix: true,
   reflowText: false,
+  tab: 3,
   tableOptions: {}
 };
 
 function Renderer(options, highlightOptions) {
   this.o = assign({}, defaultOptions, options);
+  this.tab = sanitizeTab(this.o.tab, defaultOptions.tab);
   this.tableSettings = this.o.tableOptions;
   this.emoji = this.o.emoji ? insertEmojis : identity;
   this.unescape = this.o.unescape ? unescapeEntities : identity;
@@ -73,11 +77,11 @@ Renderer.prototype.text = function (text) {
 };
 
 Renderer.prototype.code = function(code, lang, escaped) {
-  return '\n' + indentify(highlight(code, lang, this.o, this.highlightOptions)) + '\n\n';
+  return '\n' + indentify(highlight(code, lang, this.o, this.highlightOptions), this.tab) + '\n\n';
 };
 
 Renderer.prototype.blockquote = function(quote) {
-  return '\n' + this.o.blockquote(indentify(quote.trim())) + '\n\n';
+  return '\n' + this.o.blockquote(indentify(quote.trim(), this.tab)) + '\n\n';
 };
 
 Renderer.prototype.html = function(html) {
@@ -104,7 +108,7 @@ Renderer.prototype.hr = function() {
 };
 
 Renderer.prototype.list = function(body, ordered) {
-  body = indentLines(this.o.listitem(body));
+  body = indentLines(this.o.listitem(body), this.tab);
   if (!ordered) return body;
   return changeToOrdered(body);
 };
@@ -229,8 +233,8 @@ function reflowText (text, width, gfm) {
   return reflowed.join('\n');
 }
 
-function indentLines (text) {
-  return text.replace(/\n/g, '\n' + tab()) + '\n\n';
+function indentLines (text, tab) {
+  return text.replace(/\n/g, '\n' + tab) + '\n\n';
 }
 
 function changeToOrdered(text) {
@@ -271,18 +275,13 @@ function hr(inputHrStr, length) {
   return (new Array(length)).join(inputHrStr);
 }
 
-function tab(size) {
-  size = size || 4;
-  return (new Array(size)).join(' ');
-}
-
 function undoColon (str) {
   return str.replace(COLON_REPLACER_REGEXP, ':');
 }
 
-function indentify(text) {
+function indentify(text, tab) {
   if (!text) return text;
-  return tab() + text.split('\n').join('\n' + tab());
+  return tab + text.split('\n').join('\n' + tab);
 }
 
 function generateTableRow(text, escape) {
@@ -326,4 +325,20 @@ function compose () {
     }
     return args[0];
   };
+}
+
+function isAllowedTabString (string) {
+  return TAB_ALLOWED_CHARACTERS.some(function (char) {
+    return string.match('^('+char+')+$');
+  });
+}
+
+function sanitizeTab (tab, fallbackTab) {
+  if (typeof tab === 'number') {
+    return (new Array(tab + 1)).join(' ');
+  } else if (typeof tab === 'string' && isAllowedTabString(tab)) {
+    return tab;
+  } else {
+    return fallbackTab;
+  }
 }
