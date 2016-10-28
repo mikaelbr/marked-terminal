@@ -31,6 +31,7 @@ var defaultOptions = {
   firstHeading: chalk.magenta.underline.bold,
   hr: chalk.reset,
   listitem: chalk.reset,
+  list: list,
   table: chalk.reset,
   paragraph: chalk.reset,
   strong: chalk.bold,
@@ -45,7 +46,7 @@ var defaultOptions = {
   width: 80,
   showSectionPrefix: true,
   reflowText: false,
-  tab: 3,
+  tab: 4,
   tableOptions: {}
 };
 
@@ -77,11 +78,14 @@ Renderer.prototype.text = function (text) {
 };
 
 Renderer.prototype.code = function(code, lang, escaped) {
-  return '\n' + indentify(highlight(code, lang, this.o, this.highlightOptions), this.tab) + '\n\n';
+  return section(indentify(
+    this.tab,
+    highlight(code, lang, this.o, this.highlightOptions)
+  ));
 };
 
 Renderer.prototype.blockquote = function(quote) {
-  return '\n' + this.o.blockquote(indentify(quote.trim(), this.tab)) + '\n\n';
+  return section(this.o.blockquote(indentify(this.tab, quote.trim())));
 };
 
 Renderer.prototype.html = function(html) {
@@ -97,26 +101,23 @@ Renderer.prototype.heading = function(text, level, raw) {
   if (this.o.reflowText) {
     text = reflowText(text, this.o.width, this.options.gfm);
   }
-  if (level === 1) {
-    return this.o.firstHeading(text) + '\n';
-  }
-  return this.o.heading(text) + '\n';
+  return section(level === 1 ? this.o.firstHeading(text) : this.o.heading(text));
 };
 
 Renderer.prototype.hr = function() {
-  return this.o.hr(hr('-', this.o.reflowText && this.o.width)) + '\n';
+  return section(this.o.hr(hr('-', this.o.reflowText && this.o.width)));
 };
 
 Renderer.prototype.list = function(body, ordered) {
-  body = indentLines(this.o.listitem(body), this.tab);
-  if (!ordered) return body;
-  return changeToOrdered(body);
+  body = this.o.list(body, ordered)
+  return section(indentLines(this.tab, body));
 };
 
 Renderer.prototype.listitem = function(text) {
-  var isNested = ~text.indexOf('\n');
+  var transform = compose(this.o.listitem, this.transform);
+  var isNested = text.indexOf('\n') !== -1;
   if (isNested) text = text.trim();
-  return '\n * ' + this.transform(text);
+  return '\n' + transform(text);
 };
 
 Renderer.prototype.paragraph = function(text) {
@@ -125,7 +126,7 @@ Renderer.prototype.paragraph = function(text) {
   if (this.o.reflowText) {
     text = reflowText(text, this.o.width, this.options.gfm);
   }
-  return text + '\n\n';
+  return section(text);
 };
 
 Renderer.prototype.table = function(header, body) {
@@ -136,7 +137,7 @@ Renderer.prototype.table = function(header, body) {
   generateTableRow(body, this.transform).forEach(function (row) {
     table.push(row);
   });
-  return this.o.table(table.toString()) + '\n\n';
+  return section(this.o.table(table.toString()));
 };
 
 Renderer.prototype.tablerow = function(content) {
@@ -233,16 +234,45 @@ function reflowText (text, width, gfm) {
   return reflowed.join('\n');
 }
 
-function indentLines (text, tab) {
-  return text.replace(/\n/g, '\n' + tab) + '\n\n';
+function indentLines (indent, text) {
+  return text.replace(/(^|\n)(.+)/g, '$1' + indent + '$2');
 }
 
-function changeToOrdered(text) {
-  var i = 1;
-  return text.split('\n').reduce(function (acc, line) {
-    if (!line) return '\n' + acc;
-    return acc + line.replace(/(\s*)\*/, '$1' + (i++) + '.') + '\n';
-  });
+function indentify(indent, text) {
+  if (!text) return text;
+  return indent + text.split('\n').join('\n' + indent);
+}
+
+function bulletPointLine (line) {
+  return line.match(/^\s*\*/) ? line : '* ' + line;
+}
+
+function bulletPointLines (lines) {
+  return lines.split('\n')
+    .filter(identity)
+    .map(bulletPointLine)
+    .join('\n');
+}
+
+function numberedLine (line, num) {
+  return line.match(/^\s*\d+\./) ? line : (num+1) + '. ' + line;
+}
+
+function numberedLines (lines) {
+  return lines.split('\n')
+    .filter(identity)
+    .map(numberedLine)
+    .join('\n');
+}
+
+function list(body, ordered) {
+  body = body.trim();
+  body = ordered ? numberedLines(body) : bulletPointLines(body);
+  return body;
+}
+
+function section (text) {
+  return '\n' + text + '\n';
 }
 
 function highlight(code, lang, opts, hightlightOpts) {
@@ -277,11 +307,6 @@ function hr(inputHrStr, length) {
 
 function undoColon (str) {
   return str.replace(COLON_REPLACER_REGEXP, ':');
-}
-
-function indentify(text, tab) {
-  if (!text) return text;
-  return tab + text.split('\n').join('\n' + tab);
 }
 
 function generateTableRow(text, escape) {

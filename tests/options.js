@@ -41,13 +41,13 @@ describe('Options', function () {
     var blockquoteText = '> Blockquote'
     assert.equal(
       marked(blockquoteText, { renderer: r }),
-      '\n    Blockquote\n\n'
+      '\n    Blockquote\n'
     );
 
     var listText = '* List Item'
     assert.equal(
       marked(listText, { renderer: r }),
-      '\n     * List Item\n\n'
+      '\n    * List Item\n'
     );
   });
 
@@ -58,13 +58,13 @@ describe('Options', function () {
     var blockquoteText = '> Blockquote'
     assert.equal(
       marked(blockquoteText, { renderer: r }),
-      '\n   Blockquote\n\n'
+      '\n    Blockquote\n'
     );
 
     var listText = '* List Item'
     assert.equal(
       marked(listText, { renderer: r }),
-      '\n    * List Item\n\n'
+      '\n    * List Item\n'
     );
   });
 
@@ -75,13 +75,13 @@ describe('Options', function () {
     var blockquoteText = '> Blockquote'
     assert.equal(
       marked(blockquoteText, { renderer: r }),
-      '\n\tBlockquote\n\n'
+      '\n\tBlockquote\n'
     );
 
     var listText = '* List Item'
     assert.equal(
       marked(listText, { renderer: r }),
-      '\n\t * List Item\n\n'
+      '\n\t* List Item\n'
     );
   });
 
@@ -92,13 +92,13 @@ describe('Options', function () {
     var blockquoteText = '> Blockquote'
     assert.equal(
       marked(blockquoteText, { renderer: r }),
-      '\n\t\tBlockquote\n\n'
+      '\n\t\tBlockquote\n'
     );
 
     var listText = '* List Item'
     assert.equal(
       marked(listText, { renderer: r }),
-      '\n\t\t * List Item\n\n'
+      '\n\t\t* List Item\n'
     );
   });
 

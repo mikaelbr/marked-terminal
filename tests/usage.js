@@ -87,7 +87,7 @@ describe('Renderer', function () {
       'This < is "foo". it\'s a & string';
 
     var expected = '# This < is "foo". it\'s a & string\n\n' +
-      '   This < is "foo". it\'s a & string\n\n' +
+      '    This < is "foo". it\'s a & string\n\n' +
       'This < is "foo". it\'s a & string\n' +
       'This < is "foo". it\'s a & string';
     assert.equal(marked(text, markedOptions).trim(), expected);
@@ -119,32 +119,55 @@ describe('Renderer', function () {
 
   it('should reflow paragraph', function () {
     text = 'Now is the time\n',
-    expected = 'Now is the\ntime\n\n';
+    expected = '\nNow is the\ntime\n';
     assert.equal(markup(text), expected);
   });
 
   it('should nuke section header', function () {
     text = '# Contents\n',
-    expected = 'Contents\n';
+    expected = '\nContents\n';
     assert.equal(markup(text), expected);
   });
 
   it('should reflow and nuke section header', function () {
     text = '# Now is the time\n',
-    expected = 'Now is the\ntime\n';
+    expected = '\nNow is the\ntime\n';
     assert.equal(markup(text), expected);
   });
 
   it('should preserve line breaks (non gfm)', function () {
     text = 'Now  \nis    \nthe<br />time\n',
-    expected = 'Now\nis\nthe<br\n/>time\n\n';
+    expected = '\nNow\nis\nthe<br\n/>time\n';
     assert.equal(markup(text, false), expected);
   });
 
   it('should preserve line breaks (gfm)', function () {
     text = 'Now  \nis    \nthe<br />time\n',
-    expected = 'Now\nis\nthe\ntime\n\n';
+    expected = '\nNow\nis\nthe\ntime\n';
     assert.equal(markup(text, true), expected);
+  });
+
+  it('should render ordered and unordered list with same newlines', function () {
+    var ul = '* ul item\n' +
+    '* ul item';
+    var ol = '1. ol item\n' +
+    '2. ol item';
+    var before = '\n';
+    var after = '\n';
+
+    assert.equal(markup(ul),
+      before +
+      '    * ul item\n' +
+      '    * ul item' +
+      after
+    );
+
+    assert.equal(markup(ol),
+      before +
+      '    1. ol item\n' +
+      '    2. ol item' +
+      after
+    );
   });
 
 });
