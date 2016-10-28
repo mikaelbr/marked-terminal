@@ -243,8 +243,10 @@ function indentify(indent, text) {
   return indent + text.split('\n').join('\n' + indent);
 }
 
+var listItemPoint = /^\s*(\*|\d+\.)/;
+
 function bulletPointLine (line) {
-  return line.match(/^\s*\*/) ? line : '* ' + line;
+  return line.match(listItemPoint) ? line : '* ' + line;
 }
 
 function bulletPointLines (lines) {
@@ -255,7 +257,7 @@ function bulletPointLines (lines) {
 }
 
 function numberedLine (line, num) {
-  return line.match(/^\s*\d+\./) ? line : (num+1) + '. ' + line;
+  return line.match(listItemPoint) ? line : (num+1) + '. ' + line;
 }
 
 function numberedLines (lines) {

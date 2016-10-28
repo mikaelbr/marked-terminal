@@ -170,4 +170,45 @@ describe('Renderer', function () {
     );
   });
 
+  it('should render nested lists', function () {
+    var ul = '* ul item\n' +
+    '    * ul item';
+    var ol = '1. ol item\n' +
+    '    1. ol item';
+    var olul = '1. ol item\n' +
+    '    * ul item';
+    var ulol = '* ul item\n' +
+    '    1. ol item';
+    var before = '\n';
+    var after = '\n';
+
+    assert.equal(markup(ul),
+      before +
+      '    * ul item\n' +
+      '        * ul item' +
+      after
+    );
+
+    assert.equal(markup(ol),
+      before +
+      '    1. ol item\n' +
+      '        1. ol item' +
+      after
+    );
+
+    assert.equal(markup(olul),
+      before +
+      '    1. ol item\n' +
+      '        * ul item' +
+      after
+    );
+
+    assert.equal(markup(ulol),
+      before +
+      '    * ul item\n' +
+      '        1. ol item' +
+      after
+    );
+  });
+
 });
