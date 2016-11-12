@@ -90,6 +90,9 @@ var defaultOptions = {
   link: chalk.blue,
   href: chalk.blue.underline,
 
+  // Formats the bulletpoints and numbers for lists
+  list: function (body, ordered) {/* ... */},
+
   // Reflow and print-out width
   width: 80, // only applicable when reflow is true
   reflowText: false,

@@ -87,7 +87,7 @@ describe('Renderer', function () {
       'This < is "foo". it\'s a & string';
 
     var expected = '# This < is "foo". it\'s a & string\n\n' +
-      '   This < is "foo". it\'s a & string\n\n' +
+      '    This < is "foo". it\'s a & string\n\n' +
       'This < is "foo". it\'s a & string\n' +
       'This < is "foo". it\'s a & string';
     assert.equal(marked(text, markedOptions).trim(), expected);
@@ -125,13 +125,13 @@ describe('Renderer', function () {
 
   it('should nuke section header', function () {
     text = '# Contents\n',
-    expected = 'Contents\n';
+    expected = 'Contents\n\n';
     assert.equal(markup(text), expected);
   });
 
   it('should reflow and nuke section header', function () {
     text = '# Now is the time\n',
-    expected = 'Now is the\ntime\n';
+    expected = 'Now is the\ntime\n\n';
     assert.equal(markup(text), expected);
   });
 
@@ -145,6 +145,70 @@ describe('Renderer', function () {
     text = 'Now  \nis    \nthe<br />time\n',
     expected = 'Now\nis\nthe\ntime\n\n';
     assert.equal(markup(text, true), expected);
+  });
+
+  it('should render ordered and unordered list with same newlines', function () {
+    var ul = '* ul item\n' +
+    '* ul item';
+    var ol = '1. ol item\n' +
+    '2. ol item';
+    var before = '';
+    var after = '\n\n';
+
+    assert.equal(markup(ul),
+      before +
+      '    * ul item\n' +
+      '    * ul item' +
+      after
+    );
+
+    assert.equal(markup(ol),
+      before +
+      '    1. ol item\n' +
+      '    2. ol item' +
+      after
+    );
+  });
+
+  it('should render nested lists', function () {
+    var ul = '* ul item\n' +
+    '    * ul item';
+    var ol = '1. ol item\n' +
+    '    1. ol item';
+    var olul = '1. ol item\n' +
+    '    * ul item';
+    var ulol = '* ul item\n' +
+    '    1. ol item';
+    var before = '';
+    var after = '\n\n';
+
+    assert.equal(markup(ul),
+      before +
+      '    * ul item\n' +
+      '        * ul item' +
+      after
+    );
+
+    assert.equal(markup(ol),
+      before +
+      '    1. ol item\n' +
+      '        1. ol item' +
+      after
+    );
+
+    assert.equal(markup(olul),
+      before +
+      '    1. ol item\n' +
+      '        * ul item' +
+      after
+    );
+
+    assert.equal(markup(ulol),
+      before +
+      '    * ul item\n' +
+      '        1. ol item' +
+      after
+    );
   });
 
 });
