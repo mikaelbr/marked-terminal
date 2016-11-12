@@ -119,31 +119,31 @@ describe('Renderer', function () {
 
   it('should reflow paragraph', function () {
     text = 'Now is the time\n',
-    expected = '\nNow is the\ntime\n';
+    expected = 'Now is the\ntime\n\n';
     assert.equal(markup(text), expected);
   });
 
   it('should nuke section header', function () {
     text = '# Contents\n',
-    expected = '\nContents\n';
+    expected = 'Contents\n\n';
     assert.equal(markup(text), expected);
   });
 
   it('should reflow and nuke section header', function () {
     text = '# Now is the time\n',
-    expected = '\nNow is the\ntime\n';
+    expected = 'Now is the\ntime\n\n';
     assert.equal(markup(text), expected);
   });
 
   it('should preserve line breaks (non gfm)', function () {
     text = 'Now  \nis    \nthe<br />time\n',
-    expected = '\nNow\nis\nthe<br\n/>time\n';
+    expected = 'Now\nis\nthe<br\n/>time\n\n';
     assert.equal(markup(text, false), expected);
   });
 
   it('should preserve line breaks (gfm)', function () {
     text = 'Now  \nis    \nthe<br />time\n',
-    expected = '\nNow\nis\nthe\ntime\n';
+    expected = 'Now\nis\nthe\ntime\n\n';
     assert.equal(markup(text, true), expected);
   });
 
@@ -152,8 +152,8 @@ describe('Renderer', function () {
     '* ul item';
     var ol = '1. ol item\n' +
     '2. ol item';
-    var before = '\n';
-    var after = '\n';
+    var before = '';
+    var after = '\n\n';
 
     assert.equal(markup(ul),
       before +
@@ -179,8 +179,8 @@ describe('Renderer', function () {
     '    * ul item';
     var ulol = '* ul item\n' +
     '    1. ol item';
-    var before = '\n';
-    var after = '\n';
+    var before = '';
+    var after = '\n\n';
 
     assert.equal(markup(ul),
       before +

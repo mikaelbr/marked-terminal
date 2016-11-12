@@ -109,8 +109,8 @@ Renderer.prototype.hr = function() {
 };
 
 Renderer.prototype.list = function(body, ordered) {
-  body = this.o.list(body, ordered)
-  return section(indentLines(this.tab, body));
+  body = this.o.list(body, ordered, this.tab);
+  return section(fixNestedLists(indentLines(this.tab, body), this.tab));
 };
 
 Renderer.prototype.listitem = function(text) {
@@ -243,38 +243,60 @@ function indentify(indent, text) {
   return indent + text.split('\n').join('\n' + indent);
 }
 
-var listItemPoint = /^\s*(\*|\d+\.)/;
+var BULLET_POINT_REGEX = '\\*';
+var NUMBERED_POINT_REGEX = '\\d+\\.';
+var POINT_REGEX = '(?:' + [BULLET_POINT_REGEX, NUMBERED_POINT_REGEX].join('|') + ')';
 
-function bulletPointLine (line) {
-  return line.match(listItemPoint) ? line : '* ' + line;
+// Prevents nested lists from joining their parent list's last line
+function fixNestedLists (body, indent) {
+  var regex = new RegExp('' +
+    '(\\S(?: |  )?)' + // Last char of current point, plus one or two spaces
+                       // to allow trailing spaces
+    '((?:' + indent + ')+)' + // Indentation of sub point
+    '(' + POINT_REGEX + '(?:.*)+)$', 'm'); // Body of subpoint
+  return body.replace(regex, '$1\n' + indent + '$2$3');
 }
 
-function bulletPointLines (lines) {
+var isPointedLine = function (line, indent) {
+  return line.match('^(?:' + indent + ')*' + POINT_REGEX);
+}
+
+var BULLET_POINT = '* ';
+function bulletPointLine (indent, line) {
+  return isPointedLine(line, indent) ? line : BULLET_POINT + line;
+}
+
+function bulletPointLines (lines, indent) {
+  var transform = bulletPointLine.bind(null, indent);
   return lines.split('\n')
     .filter(identity)
-    .map(bulletPointLine)
+    .map(transform)
     .join('\n');
 }
 
-function numberedLine (line, num) {
-  return line.match(listItemPoint) ? line : (num+1) + '. ' + line;
+var numberedPoint = function (n) {
+  return  n + '. ';
+};
+function numberedLine (indent, line, num) {
+  return isPointedLine(line, indent) ? line : (numberedPoint(num+1) + line);
 }
 
-function numberedLines (lines) {
+function numberedLines (lines, indent) {
+  var transform = numberedLine.bind(null, indent);
   return lines.split('\n')
     .filter(identity)
-    .map(numberedLine)
+    .map(transform)
     .join('\n');
 }
 
-function list(body, ordered) {
+function list(body, ordered, indent) {
   body = body.trim();
-  body = ordered ? numberedLines(body) : bulletPointLines(body);
+  body = ordered ? numberedLines(body, indent) : bulletPointLines(body, indent);
   return body;
 }
 
 function section (text) {
-  return '\n' + text + '\n';
+  return text + '\n\n';
 }
 
 function highlight(code, lang, opts, hightlightOpts) {
