@@ -7,6 +7,8 @@ highlighting for javascript, and overriding all colors and styles.
 
 Could for instance be used to print usage information.
 
+[![Build Status](https://img.shields.io/travis/mikaelbr/marked-terminal.svg)](https://travis-ci.org/mikaelbr/marked-terminal) [![npm marked-terminal](https://img.shields.io/npm/v/marked-terminal.svg)](https://www.npmjs.com/package/marked-terminal)
+
 ## Install
 
 ```sh
