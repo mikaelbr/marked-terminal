@@ -213,24 +213,92 @@ function reflowText (text, width, gfm) {
       reflowed = [];
 
   sections.forEach(function (section) {
-    var words = section.split(/[ \t\n]+/),
-        column = 0,
-        nextText = '';
+    // Split the section by escape codes so that we can
+    // deal with them separately.
+    var fragments = section.split(/(\u001b\[(?:\d{1,3})(?:;\d{1,3})*m)/g);
+    var column = 0;
+    var currentLine = '';
+    var lastWasEscapeChar = false;
 
-    words.forEach(function (word) {
-      var addOne = column != 0;
-      if ((column + textLength(word) + addOne) > width) {
-        nextText += '\n';
-        column = 0;
-      } else if (addOne) {
-        nextText += " ";
-        column += 1;
+    while (fragments.length) {
+      var fragment = fragments[0];
+
+      if (fragment === '') {
+        fragments.splice(0, 1);
+        lastWasEscapeChar = false;
+        continue;
       }
-      nextText += word;
-      column += textLength(word);
-    });
-    reflowed.push(nextText);
+
+      // This is an escape code - leave it whole and
+      // move to the next fragment.
+      if (!textLength(fragment)) {
+        currentLine += fragment;
+        fragments.splice(0, 1);
+        lastWasEscapeChar = true;
+        continue;
+      }
+
+      var words = fragment.split(/[ \t\n]+/);
+
+      for (var i = 0; i < words.length; i++) {
+        var word = words[i];
+        var addSpace = column != 0;
+        if (lastWasEscapeChar) addSpace = false;
+
+        // If adding the new word overflows the required width
+        if (column + word.length + addSpace > width) {
+
+          if (word.length <= width) {
+            // If the new word is smaller than the required width
+            // just add it at the beginning of a new line
+            reflowed.push(currentLine);
+            currentLine = word;
+            column = word.length;
+          } else {
+            // If the new word is longer than the required width
+            // split this word into smaller parts.
+            var w = word.substr(0, width - column - addSpace);
+            if (addSpace) currentLine += ' ';
+            currentLine += w;
+            reflowed.push(currentLine);
+            currentLine = '';
+            column = 0;
+
+            word = word.substr(w.length);
+            while (word.length) {
+              var w = word.substr(0, width);
+
+              if (!w.length) break;
+
+              if (w.length < width) {
+                currentLine = w;
+                column = w.length;
+                break;
+              } else {
+                reflowed.push(w);
+                word = word.substr(width);
+              }
+            }
+          }
+        } else {
+          if (addSpace) {
+            currentLine += ' ';
+            column++;
+          }
+
+          currentLine += word;
+          column += word.length;
+        }
+
+        lastWasEscapeChar = false;
+      }
+
+      fragments.splice(0, 1);
+    }
+
+    if (textLength(currentLine)) reflowed.push(currentLine);
   });
+
   return reflowed.join('\n');
 }
 
