@@ -117,6 +117,18 @@ describe('Renderer', function () {
     assert.notEqual(marked(markdownText, markedOptions).indexOf('<CommandParam>'), -1);
   });
 
+  it('should reflow paragraph and split words that are too long (one break)', function () {
+    text = 'Now is the time: 01234567890\n',
+    expected = 'Now is the\ntime: 0123\n4567890\n\n';
+    assert.equal(markup(text), expected);
+  });
+
+  it('should reflow paragraph and split words that are too long (two breaks)', function () {
+    text = 'Now is the time: http://timeanddate.com\n',
+    expected = 'Now is the\ntime: http\n://timeand\ndate.com\n\n';
+    assert.equal(markup(text), expected);
+  });
+
   it('should reflow paragraph', function () {
     text = 'Now is the time\n',
     expected = 'Now is the\ntime\n\n';
