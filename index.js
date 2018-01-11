@@ -117,7 +117,9 @@ Renderer.prototype.listitem = function(text) {
   var transform = compose(this.o.listitem, this.transform);
   var isNested = text.indexOf('\n') !== -1;
   if (isNested) text = text.trim();
-  return '\n' + transform(text);
+
+  // Use BULLET_POINT as a marker for ordered or unordered list item
+  return '\n' + BULLET_POINT + transform(text);
 };
 
 Renderer.prototype.paragraph = function(text) {
@@ -329,9 +331,13 @@ var isPointedLine = function (line, indent) {
   return line.match('^(?:' + indent + ')*' + POINT_REGEX);
 }
 
+function toSpaces (str) {
+  return (' ').repeat(str.length);
+}
+
 var BULLET_POINT = '* ';
 function bulletPointLine (indent, line) {
-  return isPointedLine(line, indent) ? line : BULLET_POINT + line;
+  return isPointedLine(line, indent) ? line : toSpaces(BULLET_POINT) + line;
 }
 
 function bulletPointLines (lines, indent) {
@@ -346,14 +352,27 @@ var numberedPoint = function (n) {
   return  n + '. ';
 };
 function numberedLine (indent, line, num) {
-  return isPointedLine(line, indent) ? line : (numberedPoint(num+1) + line);
+  return isPointedLine(line, indent) ? {
+    num: num+1,
+    line: line.replace(BULLET_POINT, numberedPoint(num+1))
+  } : {
+    num: num,
+    line: toSpaces(numberedPoint(num)) + line
+  };
 }
 
 function numberedLines (lines, indent) {
   var transform = numberedLine.bind(null, indent);
+  let num = 0;
   return lines.split('\n')
     .filter(identity)
-    .map(transform)
+    .map((line) => {
+
+      const numbered = transform(line, num);
+      num = numbered.num;
+
+      return numbered.line;
+    })
     .join('\n');
 }
 
