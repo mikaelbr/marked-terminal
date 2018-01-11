@@ -14,15 +14,13 @@ Sometimes you want bullet points:
 Alternatively,
 
 - Dashes work just as well
-- And if you have sub points,
-  put two spaces before the dash or star:
+- And if you have sub points, put two spaces before the dash or star:
   - Like this
   - And this
 
 But also,
 
-1. And not to forget
-   numbered lists
+1. And numbered lists
   1. Can also have
   2. Several sub points
 
