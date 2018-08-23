@@ -6,9 +6,7 @@
   "scripts": {
     "test": "mocha tests/*.js --reporter spec"
   },
-  "files": [
-    "index.js"
-  ],
+  "files": ["index.js"],
   "keywords": [
     "marked",
     "render",
@@ -19,7 +17,7 @@
   "author": "Mikael Brevik",
   "license": "MIT",
   "peerDependencies": {
-    "marked": "^0.5.0"
+    "marked": "^0.4.0 || ^0.5.0"
   },
   "dependencies": {
     "cardinal": "^2.1.1",
