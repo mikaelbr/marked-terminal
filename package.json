@@ -1,12 +1,14 @@
 {
   "name": "marked-terminal",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "A custom render for marked to output to the Terminal",
   "main": "index.js",
   "scripts": {
     "test": "mocha tests/*.js --reporter spec"
   },
-  "files": ["index.js"],
+  "files": [
+    "index.js"
+  ],
   "keywords": [
     "marked",
     "render",
