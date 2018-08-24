@@ -223,4 +223,18 @@ describe('Renderer', function () {
     );
   });
 
+  it('should render task items', function () {
+    var tasks = '* [] task item\n' +
+    '* [X] task item';
+    var before = '';
+    var after = '\n\n';
+
+    assert.equal(markup(tasks),
+      before +
+      '    * [] task item\n' +
+      '    * [X] task item' +
+      after
+    );
+  });
+
 });
