@@ -122,6 +122,10 @@ Renderer.prototype.listitem = function(text) {
   return '\n' + BULLET_POINT + transform(text);
 };
 
+Renderer.prototype.checkbox = function(checked) {
+  return '[' + (checked ? "X" : " ") + '] ';
+};
+
 Renderer.prototype.paragraph = function(text) {
   var transform = compose(this.o.paragraph, this.transform);
   text = transform(text);
