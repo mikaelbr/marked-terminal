@@ -1,6 +1,5 @@
 
 var assert = require('assert');
-var assign = require('lodash.assign');
 var Renderer = require('../');
 var marked = require('marked');
 
@@ -35,7 +34,7 @@ describe('Options', function () {
   });
 
   it('should change tabs by space size', function () {
-    var options = assign({}, defaultOptions, { tab: 4 });
+    var options = Object.assign({}, defaultOptions, { tab: 4 });
     var r = new Renderer(options);
 
     var blockquoteText = '> Blockquote'
@@ -52,7 +51,7 @@ describe('Options', function () {
   });
 
   it('should use default tabs if passing not supported string', function () {
-    var options = assign({}, defaultOptions, { tab: 'dsakdskajhdsa' });
+    var options = Object.assign({}, defaultOptions, { tab: 'dsakdskajhdsa' });
     var r = new Renderer(options);
 
     var blockquoteText = '> Blockquote'
@@ -69,7 +68,7 @@ describe('Options', function () {
   });
 
   it('should change tabs by allowed characters', function () {
-    var options = assign({}, defaultOptions, { tab: '\t' });
+    var options = Object.assign({}, defaultOptions, { tab: '\t' });
     var r = new Renderer(options);
 
     var blockquoteText = '> Blockquote'
@@ -86,7 +85,7 @@ describe('Options', function () {
   });
 
   it('should support mulitple tab characters', function () {
-    var options = assign({}, defaultOptions, { tab: '\t\t' });
+    var options = Object.assign({}, defaultOptions, { tab: '\t\t' });
     var r = new Renderer(options);
 
     var blockquoteText = '> Blockquote'

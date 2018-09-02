@@ -2,7 +2,6 @@
 
 var chalk = require('chalk');
 var Table = require('cli-table');
-var assign = require('lodash.assign');
 var cardinal = require('cardinal');
 var emoji = require('node-emoji');
 
@@ -51,7 +50,7 @@ var defaultOptions = {
 };
 
 function Renderer(options, highlightOptions) {
-  this.o = assign({}, defaultOptions, options);
+  this.o = Object.assign({}, defaultOptions, options);
   this.tab = sanitizeTab(this.o.tab, defaultOptions.tab);
   this.tableSettings = this.o.tableOptions;
   this.emoji = this.o.emoji ? insertEmojis : identity;
@@ -136,7 +135,7 @@ Renderer.prototype.paragraph = function(text) {
 };
 
 Renderer.prototype.table = function(header, body) {
-  var table = new Table(assign({}, {
+  var table = new Table(Object.assign({}, {
       head: generateTableRow(header)[0]
   }, this.tableSettings));
 

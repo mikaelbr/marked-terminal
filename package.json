@@ -25,7 +25,6 @@
     "cardinal": "^2.1.1",
     "chalk": "^2.4.1",
     "cli-table": "^0.3.1",
-    "lodash.assign": "^4.2.0",
     "node-emoji": "^1.4.1"
   },
   "directories": {
