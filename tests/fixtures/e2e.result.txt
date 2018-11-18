@@ -18,6 +18,9 @@ Alternatively,
       put two spaces before the dash or star:
         * Like this
         * And this
+    * Lorem
+        * Ipsum
+        * Dolor
 
 But also,
 
