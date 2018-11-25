@@ -326,7 +326,7 @@ function fixNestedLists (body, indent) {
     '(\\S(?: |  )?)' + // Last char of current point, plus one or two spaces
                        // to allow trailing spaces
     '((?:' + indent + ')+)' + // Indentation of sub point
-    '(' + POINT_REGEX + '(?:.*)+)$', 'm'); // Body of subpoint
+    '(' + POINT_REGEX + '(?:.*)+)$', 'gm'); // Body of subpoint
   return body.replace(regex, '$1\n' + indent + '$2$3');
 }
 
