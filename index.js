@@ -4,6 +4,8 @@ var chalk = require('chalk');
 var Table = require('cli-table');
 var cardinal = require('cardinal');
 var emoji = require('node-emoji');
+const terminalLink = require('terminal-link');
+
 
 var TABLE_CELL_SPLIT = '^*||*^';
 var TABLE_ROW_WRAP = '*|*|*|*';
@@ -192,11 +194,8 @@ Renderer.prototype.link = function(href, title, text) {
 
   var hasText = text && text !== href;
 
-  var out = '';
-  if (hasText) out += this.emoji(text) + ' (';
-  out +=  this.o.href(href);
-  if (hasText) out += ')';
-
+  const out = terminalLink(hasText?text:href, href);
+  
   return this.o.link(out);
 };
 
