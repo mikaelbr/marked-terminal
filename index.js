@@ -198,7 +198,13 @@ Renderer.prototype.link = function(href, title, text) {
   var out = '';
 
   if (supportsHyperlinks.stdout) {
-    out = ansiEscapes.link(text?this.emoji(text):href, href);
+    let link = ''
+    if(text){
+      link = this.o.href(this.emoji(text))
+    }else{
+      link = this.o.href(href)
+    }
+    out = ansiEscapes.link(link, href);
   }else{
     if (hasText) out += this.emoji(text) + ' (';
     out +=  this.o.href(href);
