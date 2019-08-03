@@ -19,7 +19,7 @@
   "author": "Mikael Brevik",
   "license": "MIT",
   "peerDependencies": {
-    "marked": "^0.4.0 || ^0.5.0 || ^0.6.0"
+    "marked": "^0.4.0 || ^0.5.0 || ^0.6.0 || ^0.7.0"
   },
   "dependencies": {
     "ansi-escapes": "^3.1.0",
@@ -33,7 +33,7 @@
     "example": "example"
   },
   "devDependencies": {
-    "marked": "^0.6.0",
+    "marked": "^0.7.0",
     "mocha": "^5.2.0"
   },
   "repository": {
