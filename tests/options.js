@@ -101,4 +101,21 @@ describe('Options', function () {
     );
   });
 
+  it('should support overriding image handling', function () {
+    var options = Object.assign({}, defaultOptions, { image: function () { return 'IMAGE'} });
+    var r = new Renderer(options);
+
+    var text = `
+# Title
+![Alt text](./img.jpg)`;
+    assert.equal(
+      marked(text, { renderer: r }),
+      `# Title
+
+IMAGE
+
+`
+    );
+  });
+
 });

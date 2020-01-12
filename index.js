@@ -214,6 +214,9 @@ Renderer.prototype.link = function(href, title, text) {
 };
 
 Renderer.prototype.image = function(href, title, text) {
+  if (typeof this.o.image === 'function') {
+    return this.o.image(href, title, text);
+  }
   var out = '!['+text;
   if (title) out += ' – ' + title;
   return out + '](' + href + ')\n';
