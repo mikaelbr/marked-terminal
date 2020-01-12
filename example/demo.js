@@ -10,4 +10,4 @@ marked.setOptions({
 });
 
 // Show the parsed data
-console.log(marked(fs.readFileSync(__dirname + "/usage.md").toString()));
+console.log(marked(fs.readFileSync(__dirname + '/usage.md').toString()));
