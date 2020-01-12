@@ -423,7 +423,7 @@ function section(text) {
 }
 
 function highlight(code, lang, opts, hightlightOpts) {
-  if (!chalk.enabled) return code;
+  if (chalk.level === 0) return code;
 
   var style = opts.code;
 
