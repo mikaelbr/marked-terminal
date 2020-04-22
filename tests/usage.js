@@ -166,7 +166,7 @@ describe('Renderer', function() {
 
   it('should preserve line breaks (non gfm)', function() {
     (text = 'Now  \nis    \nthe<br />time\n'),
-      (expected = "Now\nis\nthe<br />\ntime\n\n");
+      (expected = 'Now\nis\nthe<br />\ntime\n\n');
     assert.equal(markup(text, false), expected);
   });
 
