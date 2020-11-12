@@ -4,8 +4,7 @@ var chalk = require('chalk');
 var Table = require('cli-table');
 var cardinal = require('cardinal');
 var emoji = require('node-emoji');
-const ansiEscapes = require('ansi-escapes');
-const supportsHyperlinks = require('supports-hyperlinks');
+const terminalLink = require('terminal-link');
 
 var TABLE_CELL_SPLIT = '^*||*^';
 var TABLE_ROW_WRAP = '*|*|*|*';
@@ -200,24 +199,14 @@ Renderer.prototype.link = function(href, title, text) {
     }
   }
 
-  var hasText = text && text !== href;
+  const linkTitle = text ? this.o.href(this.emoji(text)) : this.o.href(href);
 
-  var out = '';
-
-  if (supportsHyperlinks.stdout) {
-    let link = '';
-    if (text) {
-      link = this.o.href(this.emoji(text));
-    } else {
-      link = this.o.href(href);
+  return this.o.link(terminalLink(linkTitle, href, {
+    fallback: () => {
+      const isText = text && text !== href;
+      return isText ? `${this.emoji(text)} (${this.o.href(href)})` : this.o.href(href);
     }
-    out = ansiEscapes.link(link, href);
-  } else {
-    if (hasText) out += this.emoji(text) + ' (';
-    out += this.o.href(href);
-    if (hasText) out += ')';
-  }
-  return this.o.link(out);
+  }));
 };
 
 Renderer.prototype.image = function(href, title, text) {
