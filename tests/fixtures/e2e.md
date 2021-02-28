@@ -26,8 +26,8 @@ But also,
 
 1. And not to forget
    numbered lists
-  1. Can also have
-  2. Several sub points
+   1. Can also have
+   2. Several sub points
 
 # Structured documents
 
