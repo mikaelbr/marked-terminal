@@ -1,7 +1,7 @@
 'use strict';
 
 var chalk = require('chalk');
-var Table = require('cli-table');
+var Table = require('cli-table3');
 var cardinal = require('cardinal');
 var emoji = require('node-emoji');
 const ansiEscapes = require('ansi-escapes');
