@@ -109,7 +109,7 @@ var defaultOptions = {
   // Whether or not to show emojis
   emoji: true,
 
-  // Options passed to cli-table
+  // Options passed to cli-table3
   tableOptions: {},
 
   // The size of tabs in number of spaces or as tab characters
