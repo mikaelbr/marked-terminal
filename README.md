@@ -7,7 +7,7 @@ highlighting for javascript, and overriding all colors and styles.
 
 Could for instance be used to print usage information.
 
-[![build](https://github.com/ext/marked-terminal/actions/workflows/ci.yml/badge.svg)](https://github.com/ext/marked-terminal/actions/workflows/ci.yml) [![npm marked-terminal](https://img.shields.io/npm/v/marked-terminal.svg)](https://www.npmjs.com/package/marked-terminal)
+[![build](https://github.com/mikaelbr/marked-terminal/actions/workflows/ci.yml/badge.svg)](https://github.com/mikaelbr/marked-terminal/actions/workflows/ci.yml) [![npm marked-terminal](https://img.shields.io/npm/v/marked-terminal.svg)](https://www.npmjs.com/package/marked-terminal)
 
 ## Install
 
