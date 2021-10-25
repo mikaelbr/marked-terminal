@@ -1,10 +1,11 @@
-var assert = require('assert');
-var fs = require('fs');
-var path = require('path');
-var Renderer = require('../');
-var marked = require('marked');
+import { equal } from 'assert';
+import { readFileSync } from 'fs';
+import { resolve, dirname } from 'path';
+import Renderer from '../index.js';
+import marked from 'marked';
+import { fileURLToPath } from 'url';
 
-var identity = function(o) {
+var identity = function (o) {
   return o;
 };
 
@@ -13,9 +14,12 @@ function stripTermEsc(str) {
 }
 
 function getFixtureFile(fileName) {
-  return fs.readFileSync(path.resolve(__dirname, 'fixtures/', fileName), {
-    encoding: 'utf8'
-  });
+  return readFileSync(
+    resolve(dirname(fileURLToPath(import.meta.url)), 'fixtures/', fileName),
+    {
+      encoding: 'utf8'
+    }
+  );
 }
 
 var opts = [
@@ -37,7 +41,7 @@ var opts = [
 ];
 
 var defaultOptions = {};
-opts.forEach(function(opt) {
+opts.forEach(function (opt) {
   defaultOptions[opt] = identity;
 });
 
@@ -46,10 +50,10 @@ function markup(str) {
   return stripTermEsc(marked(str, { renderer: r }));
 }
 
-describe('e2', function() {
-  it('should render a document full of different supported syntax', function() {
+describe('e2', function () {
+  it('should render a document full of different supported syntax', function () {
     const actual = markup(getFixtureFile('e2e.md'));
     const expected = getFixtureFile('e2e.result.txt');
-    assert.equal(actual, expected);
+    equal(actual, expected);
   });
 });

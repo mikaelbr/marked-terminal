@@ -1,6 +1,8 @@
-var marked = require('marked');
-var fs = require('fs');
-var TerminalRenderer = require('../');
+import marked from 'marked';
+import { readFileSync } from 'fs';
+import TerminalRenderer from '../index.js';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 // Example showing usage information from a CLI tool.
 
@@ -10,4 +12,10 @@ marked.setOptions({
 });
 
 // Show the parsed data
-console.log(marked(fs.readFileSync(__dirname + '/usage.md').toString()));
+console.log(
+  marked(
+    readFileSync(
+      dirname(fileURLToPath(import.meta.url)) + '/usage.md'
+    ).toString()
+  )
+);
