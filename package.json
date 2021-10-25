@@ -27,7 +27,7 @@
     "chalk": "^4.1.0",
     "cli-table3": "^0.6.0",
     "node-emoji": "^1.10.0",
-    "supports-hyperlinks": "^2.1.0"
+    "supports-hyperlinks": "^2.2.0"
   },
   "directories": {
     "example": "example"
