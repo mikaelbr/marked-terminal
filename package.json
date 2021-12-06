@@ -33,7 +33,7 @@
     "example": "example"
   },
   "devDependencies": {
-    "marked": "^3.0.7",
+    "marked": "^4.0.6",
     "mocha": "^8.2.1"
   },
   "repository": {
