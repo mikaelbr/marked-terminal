@@ -1,4 +1,4 @@
-import marked from 'marked';
+import { marked } from 'marked';
 import { readFileSync } from 'fs';
 import TerminalRenderer from '../index.js';
 import { dirname } from 'path';

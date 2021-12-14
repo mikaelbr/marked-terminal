@@ -1,4 +1,4 @@
-import marked from 'marked';
+import { marked } from 'marked';
 import TerminalRenderer from '../index.js';
 
 marked.setOptions({
