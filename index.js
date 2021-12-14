@@ -1,11 +1,11 @@
 'use strict';
 
-var chalk = require('chalk');
-var Table = require('cli-table3');
-var cardinal = require('cardinal');
-var emoji = require('node-emoji');
-const ansiEscapes = require('ansi-escapes');
-const supportsHyperlinks = require('supports-hyperlinks');
+import chalk from 'chalk';
+import Table from 'cli-table3';
+import cardinal from 'cardinal';
+import emoji from 'node-emoji';
+import ansiEscapes from 'ansi-escapes';
+import supportsHyperlinks from 'supports-hyperlinks';
 
 var TABLE_CELL_SPLIT = '^*||*^';
 var TABLE_ROW_WRAP = '*|*|*|*';
@@ -74,25 +74,25 @@ function fixHardReturn(text, reflow) {
   return reflow ? text.replace(HARD_RETURN, /\n/g) : text;
 }
 
-Renderer.prototype.text = function(text) {
+Renderer.prototype.text = function (text) {
   return this.o.text(text);
 };
 
-Renderer.prototype.code = function(code, lang, escaped) {
+Renderer.prototype.code = function (code, lang, escaped) {
   return section(
     indentify(this.tab, highlight(code, lang, this.o, this.highlightOptions))
   );
 };
 
-Renderer.prototype.blockquote = function(quote) {
+Renderer.prototype.blockquote = function (quote) {
   return section(this.o.blockquote(indentify(this.tab, quote.trim())));
 };
 
-Renderer.prototype.html = function(html) {
+Renderer.prototype.html = function (html) {
   return this.o.html(html);
 };
 
-Renderer.prototype.heading = function(text, level, raw) {
+Renderer.prototype.heading = function (text, level, raw) {
   text = this.transform(text);
 
   var prefix = this.o.showSectionPrefix
@@ -107,16 +107,16 @@ Renderer.prototype.heading = function(text, level, raw) {
   );
 };
 
-Renderer.prototype.hr = function() {
+Renderer.prototype.hr = function () {
   return section(this.o.hr(hr('-', this.o.reflowText && this.o.width)));
 };
 
-Renderer.prototype.list = function(body, ordered) {
+Renderer.prototype.list = function (body, ordered) {
   body = this.o.list(body, ordered, this.tab);
   return section(fixNestedLists(indentLines(this.tab, body), this.tab));
 };
 
-Renderer.prototype.listitem = function(text) {
+Renderer.prototype.listitem = function (text) {
   var transform = compose(this.o.listitem, this.transform);
   var isNested = text.indexOf('\n') !== -1;
   if (isNested) text = text.trim();
@@ -125,11 +125,11 @@ Renderer.prototype.listitem = function(text) {
   return '\n' + BULLET_POINT + transform(text);
 };
 
-Renderer.prototype.checkbox = function(checked) {
+Renderer.prototype.checkbox = function (checked) {
   return '[' + (checked ? 'X' : ' ') + '] ';
 };
 
-Renderer.prototype.paragraph = function(text) {
+Renderer.prototype.paragraph = function (text) {
   var transform = compose(this.o.paragraph, this.transform);
   text = transform(text);
   if (this.o.reflowText) {
@@ -138,7 +138,7 @@ Renderer.prototype.paragraph = function(text) {
   return section(text);
 };
 
-Renderer.prototype.table = function(header, body) {
+Renderer.prototype.table = function (header, body) {
   var table = new Table(
     Object.assign(
       {},
@@ -149,44 +149,44 @@ Renderer.prototype.table = function(header, body) {
     )
   );
 
-  generateTableRow(body, this.transform).forEach(function(row) {
+  generateTableRow(body, this.transform).forEach(function (row) {
     table.push(row);
   });
   return section(this.o.table(table.toString()));
 };
 
-Renderer.prototype.tablerow = function(content) {
+Renderer.prototype.tablerow = function (content) {
   return TABLE_ROW_WRAP + content + TABLE_ROW_WRAP + '\n';
 };
 
-Renderer.prototype.tablecell = function(content, flags) {
+Renderer.prototype.tablecell = function (content, flags) {
   return content + TABLE_CELL_SPLIT;
 };
 
 // span level renderer
-Renderer.prototype.strong = function(text) {
+Renderer.prototype.strong = function (text) {
   return this.o.strong(text);
 };
 
-Renderer.prototype.em = function(text) {
+Renderer.prototype.em = function (text) {
   text = fixHardReturn(text, this.o.reflowText);
   return this.o.em(text);
 };
 
-Renderer.prototype.codespan = function(text) {
+Renderer.prototype.codespan = function (text) {
   text = fixHardReturn(text, this.o.reflowText);
   return this.o.codespan(text.replace(/:/g, COLON_REPLACER));
 };
 
-Renderer.prototype.br = function() {
+Renderer.prototype.br = function () {
   return this.o.reflowText ? HARD_RETURN : '\n';
 };
 
-Renderer.prototype.del = function(text) {
+Renderer.prototype.del = function (text) {
   return this.o.del(text);
 };
 
-Renderer.prototype.link = function(href, title, text) {
+Renderer.prototype.link = function (href, title, text) {
   if (this.options.sanitize) {
     try {
       var prot = decodeURIComponent(unescape(href))
@@ -220,7 +220,7 @@ Renderer.prototype.link = function(href, title, text) {
   return this.o.link(out);
 };
 
-Renderer.prototype.image = function(href, title, text) {
+Renderer.prototype.image = function (href, title, text) {
   if (typeof this.o.image === 'function') {
     return this.o.image(href, title, text);
   }
@@ -229,7 +229,7 @@ Renderer.prototype.image = function(href, title, text) {
   return out + '](' + href + ')\n';
 };
 
-module.exports = Renderer;
+export default Renderer;
 
 // Munge \n's and spaces in "text" so that the number of
 // characters between \n's is less than or equal to "width".
@@ -240,7 +240,7 @@ function reflowText(text, width, gfm) {
     sections = text.split(splitRe),
     reflowed = [];
 
-  sections.forEach(function(section) {
+  sections.forEach(function (section) {
     // Split the section by escape codes so that we can
     // deal with them separately.
     var fragments = section.split(/(\u001b\[(?:\d{1,3})(?:;\d{1,3})*m)/g);
@@ -347,11 +347,11 @@ var POINT_REGEX =
 function fixNestedLists(body, indent) {
   var regex = new RegExp(
     '' +
-    '(\\S(?: |  )?)' + // Last char of current point, plus one or two spaces
-    // to allow trailing spaces
-    '((?:' +
-    indent +
-    ')+)' + // Indentation of sub point
+      '(\\S(?: |  )?)' + // Last char of current point, plus one or two spaces
+      // to allow trailing spaces
+      '((?:' +
+      indent +
+      ')+)' + // Indentation of sub point
       '(' +
       POINT_REGEX +
       '(?:.*)+)$',
@@ -360,7 +360,7 @@ function fixNestedLists(body, indent) {
   return body.replace(regex, '$1\n' + indent + '$2$3');
 }
 
-var isPointedLine = function(line, indent) {
+var isPointedLine = function (line, indent) {
   return line.match('^(?:' + indent + ')*' + POINT_REGEX);
 };
 
@@ -375,14 +375,10 @@ function bulletPointLine(indent, line) {
 
 function bulletPointLines(lines, indent) {
   var transform = bulletPointLine.bind(null, indent);
-  return lines
-    .split('\n')
-    .filter(identity)
-    .map(transform)
-    .join('\n');
+  return lines.split('\n').filter(identity).map(transform).join('\n');
 }
 
-var numberedPoint = function(n) {
+var numberedPoint = function (n) {
   return n + '. ';
 };
 function numberedLine(indent, line, num) {
@@ -403,7 +399,7 @@ function numberedLines(lines, indent) {
   return lines
     .split('\n')
     .filter(identity)
-    .map(line => {
+    .map((line) => {
       const numbered = transform(line, num);
       num = numbered.num;
 
@@ -440,7 +436,7 @@ function highlight(code, lang, opts, hightlightOpts) {
 }
 
 function insertEmojis(text) {
-  return text.replace(/:([A-Za-z0-9_\-\+]+?):/g, function(emojiString) {
+  return text.replace(/:([A-Za-z0-9_\-\+]+?):/g, function (emojiString) {
     var emojiSign = emoji.get(emojiString);
     if (!emojiSign) return emojiString;
     return emojiSign + ' ';
@@ -462,7 +458,7 @@ function generateTableRow(text, escape) {
   var lines = escape(text).split('\n');
 
   var data = [];
-  lines.forEach(function(line) {
+  lines.forEach(function (line) {
     if (!line) return;
     var parsed = line
       .replace(TABLE_ROW_WRAP_REGEXP, '')
@@ -492,7 +488,7 @@ function identity(str) {
 
 function compose() {
   var funcs = arguments;
-  return function() {
+  return function () {
     var args = arguments;
     for (var i = funcs.length; i-- > 0; ) {
       args = [funcs[i].apply(this, args)];
@@ -502,7 +498,7 @@ function compose() {
 }
 
 function isAllowedTabString(string) {
-  return TAB_ALLOWED_CHARACTERS.some(function(char) {
+  return TAB_ALLOWED_CHARACTERS.some(function (char) {
     return string.match('^(' + char + ')+$');
   });
 }

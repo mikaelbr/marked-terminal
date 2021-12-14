@@ -1,6 +1,5 @@
-var marked = require('marked');
-var chalk = require('chalk');
-var TerminalRenderer = require('../');
+import marked from './_marked.js';
+import TerminalRenderer from '../index.js';
 
 marked.setOptions({
   // Define custom renderer

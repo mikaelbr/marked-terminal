@@ -1,6 +1,6 @@
-var marked = require('marked');
-var chalk = require('chalk');
-var TerminalRenderer = require('../');
+import marked from './_marked.js';
+import chalk from 'chalk';
+import TerminalRenderer from '../index.js';
 
 marked.setOptions({
   // Define custom renderer
@@ -9,7 +9,7 @@ marked.setOptions({
     codespan: chalk.underline.magenta,
 
     // Can also override color/styling by own functions.
-    firstHeading: function(text) {
+    firstHeading: function (text) {
       return '*** ' + text;
     }
   })
