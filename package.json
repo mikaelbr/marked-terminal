@@ -8,7 +8,7 @@
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   },
   "scripts": {
-    "test": "FORCE_HYPERLINK=0 mocha tests/*.mjs --reporter spec"
+    "test": "FORCE_HYPERLINK=0 mocha tests/*.js --reporter spec"
   },
   "files": [
     "index.js"
@@ -23,12 +23,12 @@
   "author": "Mikael Brevik",
   "license": "MIT",
   "peerDependencies": {
-    "marked": "^1.0.0 || ^2.0.0 || ^3.0.0"
+    "marked": "^4.0.7"
   },
   "dependencies": {
     "ansi-escapes": "^5.0.0",
     "cardinal": "^2.1.1",
-    "chalk": "^4.1.2",
+    "chalk": "^5.0.0",
     "cli-table3": "^0.6.0",
     "node-emoji": "^1.11.0",
     "supports-hyperlinks": "^2.2.0"
