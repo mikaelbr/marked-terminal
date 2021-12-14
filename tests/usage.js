@@ -45,8 +45,7 @@ defaultOptions.tableOptions = {
   chars: { top: '@@@@TABLE@@@@@' }
 };
 
-function markup(str, gfm) {
-  gfm || (gfm = false);
+function markup(str, gfm = false) {
   let r = new Renderer(defaultOptions2);
   let markedOptions = {
     renderer: r,
@@ -165,8 +164,8 @@ describe('Renderer', function () {
   });
 
   it('should preserve line breaks (non gfm)', function () {
-    let text = 'Now  \nis    \nthe<br />time\n';
-    let expected = 'Now\nis\nthe<br />\ntime\n\n';
+    let text = 'Now  \nis    \nthe<br/>time\n';
+    let expected = 'Now\nis\nthe<br/>\ntime\n\n';
     equal(markup(text, false), expected);
   });
 
