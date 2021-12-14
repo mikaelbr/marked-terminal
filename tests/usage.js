@@ -1,6 +1,6 @@
 import { equal, notEqual } from 'assert';
 import Renderer from '../index.js';
-import { marked } from 'marked';
+import marked from './_marked.js';
 
 let identity = function (o) {
   return o;

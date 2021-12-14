@@ -2,7 +2,7 @@ import { equal } from 'assert';
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import Renderer from '../index.js';
-import { marked } from 'marked';
+import marked from './_marked.js';
 import { fileURLToPath } from 'url';
 
 var identity = function (o) {

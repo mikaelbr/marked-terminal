@@ -1,4 +1,4 @@
-import { marked } from 'marked';
+import marked from './_marked.js';
 import chalk from 'chalk';
 import TerminalRenderer from '../index.js';
 
