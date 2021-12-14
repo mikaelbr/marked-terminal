@@ -3,13 +3,15 @@ name: build
 on:
   pull_request:
   push:
+    branches:
+      - master
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: ["12", "14", "16"]
+        node-version: ['12', '14', '16']
     steps:
       - uses: actions/checkout@v2
       - name: Setup NodeJS ${{ matrix.node-version }}
@@ -25,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        marked-version: ["1.0.x", "2.0.x", "3.0.x"]
+        marked-version: ['1.0.x', '2.0.x', '3.0.x']
     steps:
       - uses: actions/checkout@v2
       - name: Setup NodeJS
