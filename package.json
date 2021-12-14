@@ -23,7 +23,7 @@
   "author": "Mikael Brevik",
   "license": "MIT",
   "peerDependencies": {
-    "marked": "^4.0.7"
+    "marked": "^1.0.0 || ^2.0.0 || ^3.0.0"
   },
   "dependencies": {
     "ansi-escapes": "^5.0.0",
