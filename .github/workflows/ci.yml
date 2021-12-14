@@ -8,10 +8,10 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     strategy:
       matrix:
-        node-version: ['12', '14', '16']
+        node-version: ['14', '16']
     steps:
       - uses: actions/checkout@v2
       - name: Setup NodeJS ${{ matrix.node-version }}
@@ -24,7 +24,7 @@ jobs:
         run: npm test
 
   marked-compatibility:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     strategy:
       matrix:
         marked-version: ['1.0.x', '2.0.x', '3.0.x']
