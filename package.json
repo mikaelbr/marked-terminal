@@ -21,7 +21,8 @@
     "test": "FORCE_HYPERLINK=0 mocha tests/*.js --reporter spec"
   },
   "files": [
-    "index.js"
+    "index.js",
+    "index.cjs"
   ],
   "keywords": [
     "marked",
