@@ -1,4 +1,4 @@
-import marked from './_marked.js';
+import marked from '../tests/_marked.js';
 import TerminalRenderer from '../index.js';
 
 marked.setOptions({
