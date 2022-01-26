@@ -3,10 +3,13 @@
   "version": "5.0.0",
   "description": "A custom render for marked to output to the Terminal",
   "main": "./index.cjs",
+  "browser": "./index.js",
   "exports": {
-    "import": "./index.js",
-    "require": "./index.cjs",
-    "browser": "./index.js"
+    "node": {
+      "import": "./index.js",
+      "require": "./index.cjs"
+    },
+    "default": "./index.js"
   },
   "type": "module",
   "engines": {
