@@ -40,7 +40,7 @@
     "ansi-escapes": "^5.0.0",
     "cardinal": "^2.1.1",
     "chalk": "^5.0.0",
-    "cli-table3": "^0.6.1",
+    "cli-table3": "^0.6.2",
     "node-emoji": "^1.11.0",
     "supports-hyperlinks": "^2.2.0"
   },
