@@ -50,7 +50,7 @@
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.0.0",
     "@rollup/plugin-node-resolve": "^15.0.1",
-    "marked": "^4.2.5",
+    "marked": "^4.2.12",
     "mocha": "^10.2.0",
     "rollup": "^3.9.1"
   },
