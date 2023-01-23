@@ -48,7 +48,7 @@
     "example": "example"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^24.0.0",
+    "@rollup/plugin-commonjs": "^24.0.1",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "marked": "^4.2.5",
     "mocha": "^10.2.0",
