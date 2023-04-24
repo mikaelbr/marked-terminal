@@ -52,7 +52,7 @@
     "@rollup/plugin-node-resolve": "^15.0.1",
     "marked": "^4.2.12",
     "mocha": "^10.2.0",
-    "rollup": "^3.19.1"
+    "rollup": "^3.21.0"
   },
   "repository": {
     "type": "git",
