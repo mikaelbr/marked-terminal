@@ -49,7 +49,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.1.0",
-    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@rollup/plugin-node-resolve": "^15.0.2",
     "marked": "^5.0.1",
     "mocha": "^10.2.0",
     "rollup": "^3.21.5"
