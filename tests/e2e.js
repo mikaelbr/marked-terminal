@@ -2,7 +2,7 @@ import { equal } from 'assert';
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import Renderer from '../index.js';
-import marked from './_marked.js';
+import marked, { resetMarked } from './_marked.js';
 import { fileURLToPath } from 'url';
 
 var identity = function (o) {
@@ -52,7 +52,7 @@ function markup(str) {
 
 describe('e2', function () {
   beforeEach(function () {
-    marked.setOptions(marked.getDefaults());
+    resetMarked();
   });
 
   it('should render a document full of different supported syntax', function () {

@@ -1,6 +1,6 @@
 import { equal, notEqual } from 'assert';
 import Renderer from '../index.js';
-import marked from './_marked.js';
+import marked, { resetMarked } from './_marked.js';
 
 let identity = function (o) {
   return o;
@@ -61,7 +61,7 @@ describe('Renderer', function () {
   };
 
   beforeEach(function () {
-    marked.setOptions(marked.getDefaults());
+    resetMarked();
   });
 
   it('should render links', function () {

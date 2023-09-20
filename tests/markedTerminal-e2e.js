@@ -2,7 +2,7 @@ import { equal } from 'assert';
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { markedTerminal } from '../index.js';
-import marked from './_marked.js';
+import marked, { resetMarked } from './_marked.js';
 import { fileURLToPath } from 'url';
 
 var identity = function (o) {
@@ -51,6 +51,10 @@ function markup(str) {
 }
 
 describe('e2', function () {
+  beforeEach(function () {
+    resetMarked();
+  });
+
   it('should render a document full of different supported syntax', function () {
     const actual = markup(getFixtureFile('e2e.md'));
     const expected = getFixtureFile('e2e.result.txt');

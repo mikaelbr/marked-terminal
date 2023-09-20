@@ -1,6 +1,6 @@
 import { notEqual, equal } from 'assert';
 import { markedTerminal } from '../index.js';
-import marked from './_marked.js';
+import marked, { resetMarked } from './_marked.js';
 
 var identity = function (o) {
   return o;
@@ -33,7 +33,7 @@ defaultOptions.emoji = false;
 
 describe('Options', function () {
   beforeEach(function () {
-    marked.setOptions(marked.getDefaults());
+    resetMarked();
   });
 
   it('should not translate emojis', function () {
