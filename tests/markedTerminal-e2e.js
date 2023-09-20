@@ -1,7 +1,7 @@
 import { equal } from 'assert';
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
-import Renderer from '../index.js';
+import { markedTerminal } from '../index.js';
 import marked from './_marked.js';
 import { fileURLToPath } from 'url';
 
@@ -46,15 +46,11 @@ opts.forEach(function (opt) {
 });
 
 function markup(str) {
-  var r = new Renderer(defaultOptions);
-  return stripTermEsc(marked(str, { renderer: r }));
+  marked.use(markedTerminal(defaultOptions));
+  return stripTermEsc(marked(str));
 }
 
 describe('e2', function () {
-  beforeEach(function () {
-    marked.setOptions(marked.getDefaults());
-  });
-
   it('should render a document full of different supported syntax', function () {
     const actual = markup(getFixtureFile('e2e.md'));
     const expected = getFixtureFile('e2e.result.txt');

@@ -1,5 +1,5 @@
 import { equal, notEqual } from 'assert';
-import Renderer from '../index.js';
+import { markedTerminal } from '../index.js';
 import marked from './_marked.js';
 
 let identity = function (o) {
@@ -46,31 +46,27 @@ defaultOptions.tableOptions = {
 };
 
 function markup(str, gfm = false) {
-  let r = new Renderer(defaultOptions2);
-  let markedOptions = {
-    renderer: r,
-    gfm: gfm
-  };
-  return stripTermEsc(marked(str, markedOptions));
+  marked.use(
+    markedTerminal(defaultOptions2),
+    { gfm }
+  )
+  return stripTermEsc(marked(str));
 }
 
 describe('Renderer', function () {
-  let r = new Renderer(defaultOptions);
-  let markedOptions = {
-    renderer: r
-  };
-
   beforeEach(function () {
     marked.setOptions(marked.getDefaults());
   });
 
   it('should render links', function () {
+    marked.use(markedTerminal(defaultOptions));
     let text = '[Google](http://google.com)';
     let expected = 'Google (http://google.com)';
-    equal(marked(text, markedOptions).trim(), expected);
+    equal(marked(text).trim(), expected);
   });
 
   it('should pass on options to table', function () {
+    marked.use(markedTerminal(defaultOptions));
     let text =
       '| Lorem | Ipsum | Sit amet     | Dolar  |\n' +
       '|------|------|----------|----------|\n' +
@@ -79,20 +75,23 @@ describe('Renderer', function () {
       '| Row 3  | Value    | Value  | Value |\n' +
       '| Row 4  | Value    | Value  | Value |';
 
-    notEqual(marked(text, markedOptions).indexOf('@@@@TABLE@@@@@'), -1);
+    notEqual(marked(text).indexOf('@@@@TABLE@@@@@'), -1);
   });
 
   it('should not show link href twice if link and url is equal', function () {
+    marked.use(markedTerminal(defaultOptions));
     let text = 'http://google.com';
-    equal(marked(text, markedOptions).trim(), text);
+    equal(marked(text).trim(), text);
   });
 
   it('should render html as html', function () {
+    marked.use(markedTerminal(defaultOptions));
     let html = '<strong>foo</strong>';
-    equal(marked(html, markedOptions).trim(), html);
+    equal(marked(html).trim(), html);
   });
 
   it('should not escape entities', function () {
+    marked.use(markedTerminal(defaultOptions));
     let text =
       '# This < is "foo". it\'s a & string\n' +
       '> This < is "foo". it\'s a & string\n\n' +
@@ -104,29 +103,33 @@ describe('Renderer', function () {
       '    This < is "foo". it\'s a & string\n\n' +
       'This < is "foo". it\'s a & string\n' +
       'This < is "foo". it\'s a & string';
-    equal(marked(text, markedOptions).trim(), expected);
+    equal(marked(text).trim(), expected);
   });
 
   it('should not translate emojis inside codespans', function () {
+    marked.use(markedTerminal(defaultOptions));
     let markdownText = 'Some `:+1:`';
 
-    notEqual(marked(markdownText, markedOptions).indexOf(':+1:'), -1);
+    notEqual(marked(markdownText).indexOf(':+1:'), -1);
   });
 
   it('should translate emojis', function () {
+    marked.use(markedTerminal(defaultOptions));
     let markdownText = 'Some :+1:';
-    equal(marked(markdownText, markedOptions).indexOf(':+1'), -1);
+    equal(marked(markdownText).indexOf(':+1'), -1);
   });
 
   it('should show default if not supported emojis', function () {
+    marked.use(markedTerminal(defaultOptions));
     let markdownText = 'Some :someundefined:';
     notEqual(
-      marked(markdownText, markedOptions).indexOf(':someundefined:'),
+      marked(markdownText).indexOf(':someundefined:'),
       -1
     );
   });
 
   it('should not escape entities', function () {
+    marked.use(markedTerminal(defaultOptions));
     let markdownText =
       'Usage | Syntax' +
       '\r\n' +
@@ -134,7 +137,7 @@ describe('Renderer', function () {
       '\r\n' +
       'General |`$ shell <CommandParam>`';
 
-    notEqual(marked(markdownText, markedOptions).indexOf('<CommandParam>'), -1);
+    notEqual(marked(markdownText).indexOf('<CommandParam>'), -1);
   });
 
   it('should reflow paragraph and split words that are too long (one break)', function () {

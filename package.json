@@ -18,7 +18,7 @@
   "scripts": {
     "build": "rollup -c",
     "prepack": "npm run build",
-    "test": "FORCE_HYPERLINK=0 mocha tests/*.js --reporter spec"
+    "test": "cross-env FORCE_HYPERLINK=0 mocha tests/*.js --reporter spec"
   },
   "files": [
     "index.js",
@@ -34,7 +34,7 @@
   "author": "Mikael Brevik",
   "license": "MIT",
   "peerDependencies": {
-    "marked": "^1.0.0 || ^2.0.0 || ^3.0.0 || ^4.0.0 || ^5.0.0"
+    "marked": ">=1 <10"
   },
   "dependencies": {
     "ansi-escapes": "^6.2.0",
@@ -50,7 +50,8 @@
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.0",
     "@rollup/plugin-node-resolve": "^15.0.2",
-    "marked": "^5.0.2",
+    "cross-env": "^7.0.3",
+    "marked": "^9.0.3",
     "mocha": "^10.2.0",
     "rollup": "^3.21.7"
   },
