@@ -231,6 +231,41 @@ Renderer.prototype.image = function (href, title, text) {
 
 export default Renderer;
 
+export function markedTerminal(options, highlightOptions) {
+  const r = new Renderer(options, highlightOptions);
+
+  const funcs = [
+    'text',
+    'code',
+    'blockquote',
+    'html',
+    'heading',
+    'hr',
+    'list',
+    'listitem',
+    'checkbox',
+    'paragraph',
+    'table',
+    'tablerow',
+    'tablecell',
+    'strong',
+    'em',
+    'codespan',
+    'br',
+    'del',
+    'link',
+    'image',
+  ];
+
+  return funcs.reduce((extension, func) => {
+    extension.renderer[func] = function (...args) {
+      r.options = this.options;
+      return r[func](...args);
+    };
+    return extension;
+  }, {renderer: {}});
+}
+
 // Munge \n's and spaces in "text" so that the number of
 // characters between \n's is less than or equal to "width".
 function reflowText(text, width, gfm) {

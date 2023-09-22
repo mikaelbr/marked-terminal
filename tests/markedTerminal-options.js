@@ -1,5 +1,5 @@
 import { notEqual, equal } from 'assert';
-import Renderer from '../index.js';
+import { markedTerminal } from '../index.js';
 import marked, { resetMarked } from './_marked.js';
 
 var identity = function (o) {
@@ -32,65 +32,62 @@ opts.forEach(function (opt) {
 defaultOptions.emoji = false;
 
 describe('Options', function () {
-  var r = new Renderer(defaultOptions);
-
   beforeEach(function () {
     resetMarked();
   });
 
   it('should not translate emojis', function () {
+    marked.use(markedTerminal(defaultOptions));
     var markdownText = 'Some :emoji:';
 
     notEqual(
-      marked(markdownText, {
-        renderer: r
-      }).indexOf(':emoji:'),
+      marked(markdownText).indexOf(':emoji:'),
       -1
     );
   });
 
   it('should change tabs by space size', function () {
     var options = Object.assign({}, defaultOptions, { tab: 4 });
-    var r = new Renderer(options);
+    marked.use(markedTerminal(options));
 
     var blockquoteText = '> Blockquote';
-    equal(marked(blockquoteText, { renderer: r }), '    Blockquote\n\n');
+    equal(marked(blockquoteText), '    Blockquote\n\n');
 
     var listText = '* List Item';
-    equal(marked(listText, { renderer: r }), '    * List Item\n\n');
+    equal(marked(listText), '    * List Item\n\n');
   });
 
   it('should use default tabs if passing not supported string', function () {
     var options = Object.assign({}, defaultOptions, { tab: 'dsakdskajhdsa' });
-    var r = new Renderer(options);
+    marked.use(markedTerminal(options));
 
     var blockquoteText = '> Blockquote';
-    equal(marked(blockquoteText, { renderer: r }), '    Blockquote\n\n');
+    equal(marked(blockquoteText), '    Blockquote\n\n');
 
     var listText = '* List Item';
-    equal(marked(listText, { renderer: r }), '    * List Item\n\n');
+    equal(marked(listText), '    * List Item\n\n');
   });
 
   it('should change tabs by allowed characters', function () {
     var options = Object.assign({}, defaultOptions, { tab: '\t' });
-    var r = new Renderer(options);
+    marked.use(markedTerminal(options));
 
     var blockquoteText = '> Blockquote';
-    equal(marked(blockquoteText, { renderer: r }), '\tBlockquote\n\n');
+    equal(marked(blockquoteText), '\tBlockquote\n\n');
 
     var listText = '* List Item';
-    equal(marked(listText, { renderer: r }), '\t* List Item\n\n');
+    equal(marked(listText), '\t* List Item\n\n');
   });
 
   it('should support mulitple tab characters', function () {
     var options = Object.assign({}, defaultOptions, { tab: '\t\t' });
-    var r = new Renderer(options);
+    marked.use(markedTerminal(options));
 
     var blockquoteText = '> Blockquote';
-    equal(marked(blockquoteText, { renderer: r }), '\t\tBlockquote\n\n');
+    equal(marked(blockquoteText), '\t\tBlockquote\n\n');
 
     var listText = '* List Item';
-    equal(marked(listText, { renderer: r }), '\t\t* List Item\n\n');
+    equal(marked(listText), '\t\t* List Item\n\n');
   });
 
   it('should support overriding image handling', function () {
@@ -99,13 +96,13 @@ describe('Options', function () {
         return 'IMAGE';
       }
     });
-    var r = new Renderer(options);
+    marked.use(markedTerminal(options));
 
     var text = `
 # Title
 ![Alt text](./img.jpg)`;
     equal(
-      marked(text, { renderer: r }),
+      marked(text),
       `# Title
 
 IMAGE
