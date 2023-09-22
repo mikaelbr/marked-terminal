@@ -1,4 +1,4 @@
-name: build
+name: Test all versions
 
 on:
   pull_request:
@@ -7,11 +7,11 @@ on:
       - master
 
 jobs:
-  build:
+  node-compatibility:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: ['14', '16']
+        node-version: ['16', '18', '20']
     steps:
       - uses: actions/checkout@v2
       - name: Setup NodeJS ${{ matrix.node-version }}
@@ -27,13 +27,24 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        marked-version: ['1.0.x', '2.0.x', '3.0.x', '4.0.x']
+        marked-version:
+          [
+            '1.0.x',
+            '2.0.x',
+            '3.0.x',
+            '4.0.x',
+            '5.0.x',
+            '6.0.x',
+            '7.0.x',
+            '8.0.x',
+            '9.0.x'
+          ]
     steps:
       - uses: actions/checkout@v2
       - name: Setup NodeJS
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 20
       - name: Install dependencies
         run: npm ci
       - name: Install marked ${{ matrix.marked-version }}
