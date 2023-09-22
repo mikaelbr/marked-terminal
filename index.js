@@ -3,7 +3,7 @@
 import chalk from 'chalk';
 import Table from 'cli-table3';
 import cardinal from 'cardinal';
-import emoji from 'node-emoji';
+import * as emoji from 'node-emoji';
 import ansiEscapes from 'ansi-escapes';
 import supportsHyperlinks from 'supports-hyperlinks';
 
@@ -254,16 +254,19 @@ export function markedTerminal(options, highlightOptions) {
     'br',
     'del',
     'link',
-    'image',
+    'image'
   ];
 
-  return funcs.reduce((extension, func) => {
-    extension.renderer[func] = function (...args) {
-      r.options = this.options;
-      return r[func](...args);
-    };
-    return extension;
-  }, {renderer: {}});
+  return funcs.reduce(
+    (extension, func) => {
+      extension.renderer[func] = function (...args) {
+        r.options = this.options;
+        return r[func](...args);
+      };
+      return extension;
+    },
+    { renderer: {} }
+  );
 }
 
 // Munge \n's and spaces in "text" so that the number of

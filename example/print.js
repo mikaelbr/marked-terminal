@@ -7,6 +7,7 @@ marked.setOptions({
   renderer: new TerminalRenderer({
     // Change style for code
     codespan: chalk.underline.magenta,
+    emoji: true,
 
     // Can also override color/styling by own functions.
     firstHeading: function (text) {
@@ -17,5 +18,5 @@ marked.setOptions({
 
 // Show the parsed data
 console.log(
-  marked('# Hello \n\nThis is **markdown** printed in the `terminal`')
+  marked('# Hello \n\nThis is **markdown** printed in the `terminal` :+1:')
 );
