@@ -1,9 +1,8 @@
-marked-terminal
-===
+# marked-terminal
 
 > Custom Renderer for [marked](https://github.com/chjj/marked)
-allowing for printing Markdown to the Terminal. Supports pretty tables, syntax
-highlighting for javascript, and overriding all colors and styles.
+> allowing for printing Markdown to the Terminal. Supports pretty tables, syntax
+> highlighting for javascript, and overriding all colors and styles.
 
 Could for instance be used to print usage information.
 
@@ -18,8 +17,19 @@ npm install marked marked-terminal
 ## Example
 
 ```javascript
-var marked = require('marked');
-var TerminalRenderer = require('marked-terminal');
+import { marked } from 'marked';
+import { markedTerminal } from 'marked-terminal';
+
+marked.use(markedTerminal([options][, highlightOptions]));
+
+marked.parse('# Hello \n This is **markdown** printed in the `terminal`');
+```
+
+### Using older versions
+
+```javascript
+const marked = require('marked');
+const TerminalRenderer = require('marked-terminal');
 
 marked.setOptions({
   // Define custom renderer
@@ -27,13 +37,14 @@ marked.setOptions({
 });
 
 // Show the parsed data
-console.log(marked('# Hello \n This is **markdown** printed in the `terminal`'));
+console.log(
+  marked('# Hello \n This is **markdown** printed in the `terminal`')
+);
 ```
 
 This will produce the following:
 
 ![Screenshot of marked-terminal](./screenshot.png)
-
 
 ### Syntax Highlighting
 
@@ -68,6 +79,7 @@ This will produce the following:
 Constructur: `new TerminalRenderer([options][, highlightOptions])`
 
 ### `options`
+
 Optional
 Used to override default styling.
 
@@ -120,18 +132,19 @@ var defaultOptions = {
 ```
 
 #### Example of overriding defaults
+
 ```javascript
 marked.setOptions({
   renderer: new TerminalRenderer({
-    codespan: chalk.underline.magenta,
+    codespan: chalk.underline.magenta
   })
 });
 ```
 
 ### `highlightOptions`
+
 Options passed into [cardinal](https://github.com/thlorenz/cardinal). See
 readme there to see what options to pass.
-
 
 See [more examples](./example/)
 
