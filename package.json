@@ -1,6 +1,6 @@
 {
   "name": "marked-terminal",
-  "version": "5.2.0",
+  "version": "6.0.0",
   "description": "A custom render for marked to output to the Terminal",
   "main": "./index.cjs",
   "browser": "./index.js",
