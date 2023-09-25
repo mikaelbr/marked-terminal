@@ -53,7 +53,7 @@
     "cross-env": "^7.0.3",
     "marked": "^9.0.3",
     "mocha": "^10.2.0",
-    "rollup": "^3.29.2"
+    "rollup": "^3.29.3"
   },
   "repository": {
     "type": "git",
