@@ -51,7 +51,7 @@
     "@rollup/plugin-commonjs": "^25.0.4",
     "@rollup/plugin-node-resolve": "^15.2.1",
     "cross-env": "^7.0.3",
-    "marked": "^9.0.3",
+    "marked": "^9.1.2",
     "mocha": "^10.2.0",
     "rollup": "^3.29.2"
   },
