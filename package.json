@@ -34,7 +34,7 @@
   "author": "Mikael Brevik",
   "license": "MIT",
   "peerDependencies": {
-    "marked": ">=1 <10"
+    "marked": ">=1 <11"
   },
   "dependencies": {
     "ansi-escapes": "^6.2.0",
@@ -51,7 +51,7 @@
     "@rollup/plugin-commonjs": "^25.0.4",
     "@rollup/plugin-node-resolve": "^15.2.1",
     "cross-env": "^7.0.3",
-    "marked": "^9.0.3",
+    "marked": "^10.0.0",
     "mocha": "^10.2.0",
     "rollup": "^3.29.2"
   },
