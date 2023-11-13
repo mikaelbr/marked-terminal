@@ -48,12 +48,12 @@
     "example": "example"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^25.0.4",
+    "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "cross-env": "^7.0.3",
     "marked": "^10.0.0",
     "mocha": "^10.2.0",
-    "rollup": "^3.29.2"
+    "rollup": "^4.4.0"
   },
   "repository": {
     "type": "git",
