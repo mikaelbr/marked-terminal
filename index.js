@@ -2,7 +2,7 @@
 
 import chalk from 'chalk';
 import Table from 'cli-table3';
-import cardinal from 'cardinal';
+import { highlight as highlightCli } from 'cli-highlight';
 import * as emoji from 'node-emoji';
 import ansiEscapes from 'ansi-escapes';
 import supportsHyperlinks from 'supports-hyperlinks';
@@ -467,7 +467,7 @@ function highlight(code, lang, opts, hightlightOpts) {
   }
 
   try {
-    return cardinal.highlight(code, hightlightOpts);
+    return highlightCli(code, Object.assign({}, { lang }, hightlightOpts));
   } catch (e) {
     return style(code);
   }
