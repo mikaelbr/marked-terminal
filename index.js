@@ -456,18 +456,15 @@ function section(text) {
   return text + '\n\n';
 }
 
-function highlight(code, lang, opts, hightlightOpts) {
+function highlight(code, language, opts, hightlightOpts) {
   if (chalk.level === 0) return code;
 
   var style = opts.code;
 
   code = fixHardReturn(code, opts.reflowText);
-  if (lang !== 'javascript' && lang !== 'js') {
-    return style(code);
-  }
 
   try {
-    return highlightCli(code, Object.assign({}, { lang }, hightlightOpts));
+    return highlightCli(code, Object.assign({}, { language }, hightlightOpts));
   } catch (e) {
     return style(code);
   }
