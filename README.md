@@ -48,9 +48,8 @@ This will produce the following:
 
 ### Syntax Highlighting
 
-Also have support for syntax highlighting using [cardinal](https://github.com/thlorenz/cardinal).
-You can override highlight defaults by passing in settings as the second argument for TerminalRenderer,
-or you can create a `.cardinalrc` as defined in the [cardinal README](https://github.com/thlorenz/cardinal).
+Also have support for syntax highlighting using [cli-highlight](https://github.com/felixfbecker/cli-highlight).
+You can override highlighting defaults by passing in settings as the second argument for TerminalRenderer.
 
 Having the following markdown input:
 
@@ -143,8 +142,7 @@ marked.setOptions({
 
 ### `highlightOptions`
 
-Options passed into [cardinal](https://github.com/thlorenz/cardinal). See
-readme there to see what options to pass.
+Options passed into [cli-highlight](https://github.com/felixfbecker/cli-highlight). See readme there to see what options to pass.
 
 See [more examples](./example/)
 
