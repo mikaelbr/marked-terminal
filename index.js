@@ -74,25 +74,47 @@ function fixHardReturn(text, reflow) {
   return reflow ? text.replace(HARD_RETURN, /\n/g) : text;
 }
 
+Renderer.prototype.space = function () {
+  return '';
+};
+
 Renderer.prototype.text = function (text) {
+  if (text.type === 'text' || text.type === 'escape') {
+    text = text.text;
+  }
   return this.o.text(text);
 };
 
 Renderer.prototype.code = function (code, lang, escaped) {
+  if (code.type === 'code') {
+    lang = code.lang;
+    escaped = !!code.escaped;
+    code = code.text;
+  }
   return section(
     indentify(this.tab, highlight(code, lang, this.o, this.highlightOptions))
   );
 };
 
 Renderer.prototype.blockquote = function (quote) {
+  if (quote.type === 'blockquote') {
+    quote = this.parser.parse(quote.tokens);
+  }
   return section(this.o.blockquote(indentify(this.tab, quote.trim())));
 };
 
 Renderer.prototype.html = function (html) {
+  if (html.type === 'html') {
+    html = html.text;
+  }
   return this.o.html(html);
 };
 
-Renderer.prototype.heading = function (text, level, raw) {
+Renderer.prototype.heading = function (text, level) {
+  if (text.type === 'heading') {
+    level = text.depth;
+    text = this.parser.parseInline(text.tokens);
+  }
   text = this.transform(text);
 
   var prefix = this.o.showSectionPrefix
@@ -112,11 +134,47 @@ Renderer.prototype.hr = function () {
 };
 
 Renderer.prototype.list = function (body, ordered) {
+  if (body.type === 'list') {
+    const listToken = body;
+    const start = listToken.start;
+    const loose = listToken.loose;
+
+    ordered = listToken.ordered;
+    body = '';
+    for (let j = 0; j < listToken.items.length; j++) {
+      body += this.listitem(listToken.items[j]);
+    }
+  }
   body = this.o.list(body, ordered, this.tab);
   return section(fixNestedLists(indentLines(this.tab, body), this.tab));
 };
 
 Renderer.prototype.listitem = function (text) {
+  if (text.type === 'list_item') {
+    const item = text;
+    text = '';
+    if (item.task) {
+      const checkbox = this.checkbox({ checked: !!item.checked });
+      if (item.loose) {
+        if (item.tokens.length > 0 && item.tokens[0].type === 'paragraph') {
+          item.tokens[0].text = checkbox + ' ' + item.tokens[0].text;
+          if (item.tokens[0].tokens && item.tokens[0].tokens.length > 0 && item.tokens[0].tokens[0].type === 'text') {
+            item.tokens[0].tokens[0].text = checkbox + ' ' + item.tokens[0].tokens[0].text;
+          }
+        } else {
+          item.tokens.unshift({
+            type: 'text',
+            raw: checkbox + ' ',
+            text: checkbox + ' '
+          });
+        }
+      } else {
+        text += checkbox + ' ';
+      }
+    }
+
+    text += this.parser.parse(item.tokens, !!item.loose);
+  }
   var transform = compose(this.o.listitem, this.transform);
   var isNested = text.indexOf('\n') !== -1;
   if (isNested) text = text.trim();
@@ -126,10 +184,16 @@ Renderer.prototype.listitem = function (text) {
 };
 
 Renderer.prototype.checkbox = function (checked) {
+  if (typeof checked === 'object') {
+    checked = checked.checked;
+  }
   return '[' + (checked ? 'X' : ' ') + '] ';
 };
 
 Renderer.prototype.paragraph = function (text) {
+  if (text.type === 'paragraph') {
+    text = this.parser.parseInline(text.tokens);
+  }
   var transform = compose(this.o.paragraph, this.transform);
   text = transform(text);
   if (this.o.reflowText) {
@@ -139,6 +203,30 @@ Renderer.prototype.paragraph = function (text) {
 };
 
 Renderer.prototype.table = function (header, body) {
+  if (header.type === 'table') {
+    const token = header;
+    header = '';
+
+    // header
+    let cell = '';
+    for (let j = 0; j < token.header.length; j++) {
+      cell += this.tablecell(token.header[j]);
+    }
+    header += this.tablerow({ text: cell });
+
+    body = '';
+    for (let j = 0; j < token.rows.length; j++) {
+      const row = token.rows[j];
+
+      cell = '';
+      for (let k = 0; k < row.length; k++) {
+        cell += this.tablecell(row[k]);
+      }
+
+      body += this.tablerow({ text: cell });
+    }
+    if (body) body = `<tbody>${body}</tbody>`;
+  }
   var table = new Table(
     Object.assign(
       {},
@@ -156,24 +244,39 @@ Renderer.prototype.table = function (header, body) {
 };
 
 Renderer.prototype.tablerow = function (content) {
+  if (typeof content === 'object') {
+    content = content.text;
+  }
   return TABLE_ROW_WRAP + content + TABLE_ROW_WRAP + '\n';
 };
 
-Renderer.prototype.tablecell = function (content, flags) {
+Renderer.prototype.tablecell = function (content) {
+  if (typeof content === 'object') {
+    content = this.parser.parseInline(content.tokens);
+  }
   return content + TABLE_CELL_SPLIT;
 };
 
 // span level renderer
 Renderer.prototype.strong = function (text) {
+  if (text.type === 'strong') {
+    text = this.parser.parseInline(text.tokens);
+  }
   return this.o.strong(text);
 };
 
 Renderer.prototype.em = function (text) {
+  if (text.type === 'em') {
+    text = this.parser.parseInline(text.tokens);
+  }
   text = fixHardReturn(text, this.o.reflowText);
   return this.o.em(text);
 };
 
 Renderer.prototype.codespan = function (text) {
+  if (text.type === 'codespan') {
+    text = text.text;
+  }
   text = fixHardReturn(text, this.o.reflowText);
   return this.o.codespan(text.replace(/:/g, COLON_REPLACER));
 };
@@ -183,10 +286,19 @@ Renderer.prototype.br = function () {
 };
 
 Renderer.prototype.del = function (text) {
+  if (text.type === 'del') {
+    text = this.parser.parseInline(text.tokens);
+  }
   return this.o.del(text);
 };
 
 Renderer.prototype.link = function (href, title, text) {
+  if (href.type === 'link') {
+    title = href.title;
+    text = this.parser.parseInline(href.tokens);
+    href = href.href;
+  }
+
   if (this.options.sanitize) {
     try {
       var prot = decodeURIComponent(unescape(href))
@@ -221,6 +333,12 @@ Renderer.prototype.link = function (href, title, text) {
 };
 
 Renderer.prototype.image = function (href, title, text) {
+  if (href.type === 'link') {
+    title = href.title;
+    text = href.text;
+    href = href.href;
+  }
+
   if (typeof this.o.image === 'function') {
     return this.o.image(href, title, text);
   }
@@ -261,11 +379,12 @@ export function markedTerminal(options, highlightOptions) {
     (extension, func) => {
       extension.renderer[func] = function (...args) {
         r.options = this.options;
+        r.parser = this.parser;
         return r[func](...args);
       };
       return extension;
     },
-    { renderer: {} }
+    { renderer: {}, useNewRenderer: true }
   );
 }
 
