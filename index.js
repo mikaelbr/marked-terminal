@@ -79,14 +79,14 @@ Renderer.prototype.space = function () {
 };
 
 Renderer.prototype.text = function (text) {
-  if (text.type === 'text' || text.type === 'escape') {
+  if (typeof text === 'object') {
     text = text.text;
   }
   return this.o.text(text);
 };
 
 Renderer.prototype.code = function (code, lang, escaped) {
-  if (code.type === 'code') {
+  if (typeof code === 'object') {
     lang = code.lang;
     escaped = !!code.escaped;
     code = code.text;
@@ -97,21 +97,21 @@ Renderer.prototype.code = function (code, lang, escaped) {
 };
 
 Renderer.prototype.blockquote = function (quote) {
-  if (quote.type === 'blockquote') {
+  if (typeof quote === 'object') {
     quote = this.parser.parse(quote.tokens);
   }
   return section(this.o.blockquote(indentify(this.tab, quote.trim())));
 };
 
 Renderer.prototype.html = function (html) {
-  if (html.type === 'html') {
+  if (typeof html === 'object') {
     html = html.text;
   }
   return this.o.html(html);
 };
 
 Renderer.prototype.heading = function (text, level) {
-  if (text.type === 'heading') {
+  if (typeof text === 'object') {
     level = text.depth;
     text = this.parser.parseInline(text.tokens);
   }
@@ -134,7 +134,7 @@ Renderer.prototype.hr = function () {
 };
 
 Renderer.prototype.list = function (body, ordered) {
-  if (body.type === 'list') {
+  if (typeof body === 'object') {
     const listToken = body;
     const start = listToken.start;
     const loose = listToken.loose;
@@ -150,7 +150,7 @@ Renderer.prototype.list = function (body, ordered) {
 };
 
 Renderer.prototype.listitem = function (text) {
-  if (text.type === 'list_item') {
+  if (typeof text === 'object') {
     const item = text;
     text = '';
     if (item.task) {
@@ -191,7 +191,7 @@ Renderer.prototype.checkbox = function (checked) {
 };
 
 Renderer.prototype.paragraph = function (text) {
-  if (text.type === 'paragraph') {
+  if (typeof text === 'object') {
     text = this.parser.parseInline(text.tokens);
   }
   var transform = compose(this.o.paragraph, this.transform);
@@ -203,7 +203,7 @@ Renderer.prototype.paragraph = function (text) {
 };
 
 Renderer.prototype.table = function (header, body) {
-  if (header.type === 'table') {
+  if (typeof header === 'object') {
     const token = header;
     header = '';
 
@@ -259,14 +259,14 @@ Renderer.prototype.tablecell = function (content) {
 
 // span level renderer
 Renderer.prototype.strong = function (text) {
-  if (text.type === 'strong') {
+  if (typeof text === 'object') {
     text = this.parser.parseInline(text.tokens);
   }
   return this.o.strong(text);
 };
 
 Renderer.prototype.em = function (text) {
-  if (text.type === 'em') {
+  if (typeof text === 'object') {
     text = this.parser.parseInline(text.tokens);
   }
   text = fixHardReturn(text, this.o.reflowText);
@@ -274,7 +274,7 @@ Renderer.prototype.em = function (text) {
 };
 
 Renderer.prototype.codespan = function (text) {
-  if (text.type === 'codespan') {
+  if (typeof text === 'object') {
     text = text.text;
   }
   text = fixHardReturn(text, this.o.reflowText);
@@ -286,14 +286,14 @@ Renderer.prototype.br = function () {
 };
 
 Renderer.prototype.del = function (text) {
-  if (text.type === 'del') {
+  if (typeof text === 'object') {
     text = this.parser.parseInline(text.tokens);
   }
   return this.o.del(text);
 };
 
 Renderer.prototype.link = function (href, title, text) {
-  if (href.type === 'link') {
+  if (typeof href === 'object') {
     title = href.title;
     text = this.parser.parseInline(href.tokens);
     href = href.href;
@@ -333,7 +333,7 @@ Renderer.prototype.link = function (href, title, text) {
 };
 
 Renderer.prototype.image = function (href, title, text) {
-  if (href.type === 'link') {
+  if (typeof href === 'object') {
     title = href.title;
     text = href.text;
     href = href.href;
