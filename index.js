@@ -6,6 +6,7 @@ import { highlight as highlightCli } from 'cli-highlight';
 import * as emoji from 'node-emoji';
 import ansiEscapes from 'ansi-escapes';
 import supportsHyperlinks from 'supports-hyperlinks';
+import ansiRegex from 'ansi-regex';
 
 var TABLE_CELL_SPLIT = '^*||*^';
 var TABLE_ROW_WRAP = '*|*|*|*';
@@ -15,6 +16,8 @@ var COLON_REPLACER = '*#COLON|*';
 var COLON_REPLACER_REGEXP = new RegExp(escapeRegExp(COLON_REPLACER), 'g');
 
 var TAB_ALLOWED_CHARACTERS = ['\t'];
+
+var ANSI_REGEXP = ansiRegex();
 
 // HARD_RETURN holds a character sequence used to indicate text has a
 // hard (no-reflowing) line break.  Previously \r and \r\n were turned
@@ -65,7 +68,7 @@ function Renderer(options, highlightOptions) {
 // Compute length of str not including ANSI escape codes.
 // See http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
 function textLength(str) {
-  return str.replace(/\u001b\[(?:\d{1,3})(?:;\d{1,3})*m/g, '').length;
+  return str.replace(ANSI_REGEXP, '').length;
 }
 
 Renderer.prototype.textLength = textLength;
