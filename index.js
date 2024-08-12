@@ -326,7 +326,9 @@ Renderer.prototype.link = function (href, title, text) {
     } else {
       link = this.o.href(href);
     }
-    out = ansiEscapes.link(link, href);
+    out = ansiEscapes.link(link, href
+      // textLength breaks on '+' in URLs
+      .replace(/\+/g, '%20'));
   } else {
     if (hasText) out += this.emoji(text) + ' (';
     out += this.o.href(href);
