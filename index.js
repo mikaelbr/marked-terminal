@@ -161,8 +161,13 @@ Renderer.prototype.listitem = function (text) {
       if (item.loose) {
         if (item.tokens.length > 0 && item.tokens[0].type === 'paragraph') {
           item.tokens[0].text = checkbox + ' ' + item.tokens[0].text;
-          if (item.tokens[0].tokens && item.tokens[0].tokens.length > 0 && item.tokens[0].tokens[0].type === 'text') {
-            item.tokens[0].tokens[0].text = checkbox + ' ' + item.tokens[0].tokens[0].text;
+          if (
+            item.tokens[0].tokens &&
+            item.tokens[0].tokens.length > 0 &&
+            item.tokens[0].tokens[0].type === 'text'
+          ) {
+            item.tokens[0].tokens[0].text =
+              checkbox + ' ' + item.tokens[0].tokens[0].text;
           }
         } else {
           item.tokens.unshift({
@@ -228,7 +233,6 @@ Renderer.prototype.table = function (header, body) {
 
       body += this.tablerow({ text: cell });
     }
-    if (body) body = `<tbody>${body}</tbody>`;
   }
   var table = new Table(
     Object.assign(
@@ -326,9 +330,12 @@ Renderer.prototype.link = function (href, title, text) {
     } else {
       link = this.o.href(href);
     }
-    out = ansiEscapes.link(link, href
-      // textLength breaks on '+' in URLs
-      .replace(/\+/g, '%20'));
+    out = ansiEscapes.link(
+      link,
+      href
+        // textLength breaks on '+' in URLs
+        .replace(/\+/g, '%20')
+    );
   } else {
     if (hasText) out += this.emoji(text) + ' (';
     out += this.o.href(href);
