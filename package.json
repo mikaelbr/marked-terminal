@@ -49,7 +49,7 @@
     "example": "example"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^28.0.2",
+    "@rollup/plugin-commonjs": "^28.0.3",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "cross-env": "^7.0.3",
     "marked": "^15.0.0",
