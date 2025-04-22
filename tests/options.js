@@ -1,6 +1,7 @@
 import { notEqual, equal } from 'assert';
 import Renderer from '../index.js';
 import marked, { resetMarked } from './_marked.js';
+import ansiEscapes from 'ansi-escapes';
 
 var identity = function (o) {
   return o;
@@ -82,7 +83,7 @@ describe('Options', function () {
     equal(marked(listText, { renderer: r }), '\t* List Item\n\n');
   });
 
-  it('should support mulitple tab characters', function () {
+  it('should support multiple tab characters', function () {
     var options = Object.assign({}, defaultOptions, { tab: '\t\t' });
     var r = new Renderer(options);
 
@@ -109,6 +110,48 @@ describe('Options', function () {
       `# Title
 
 IMAGE
+
+`
+    );
+  });
+
+  it('should support disable hyper link by set forceHyperLink to false', function () {
+    var options = Object.assign({}, defaultOptions, {
+      forceHyperLink: false
+    });
+    var r = new Renderer(options);
+
+    var text = `
+# Title
+
+[Github](https://www.github.com)
+`;
+    equal(
+      marked(text, { renderer: r }),
+      `# Title
+
+Github (https://www.github.com)
+
+`
+    );
+  });
+
+  it('should support enable hyper link by set forceHyperLink to true', function () {
+    var options = Object.assign({}, defaultOptions, {
+      forceHyperLink: true
+    });
+    var r = new Renderer(options);
+
+    var text = `
+  # Title
+
+[Github](https://www.github.com)
+  `;
+    equal(
+      marked(text, { renderer: r }),
+      `# Title
+
+${ansiEscapes.link('Github', 'https://www.github.com')}${'\n  '}
 
 `
     );

@@ -127,6 +127,10 @@ var defaultOptions = {
   tab: 3 // examples: 4, 2, \t, \t\t
 
   image: function (href, title, text) {} // function for overriding the default image handling.
+
+  // Boolean, force enable or disable hyper link, default is `undefined`
+  // If undefined, it will dynamically determine whether the current environment supports hyperlink
+  forceHyperLink: undefined
 };
 ```
 

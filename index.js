@@ -51,7 +51,8 @@ var defaultOptions = {
   showSectionPrefix: true,
   reflowText: false,
   tab: 4,
-  tableOptions: {}
+  tableOptions: {},
+  forceHyperLink: undefined
 };
 
 function Renderer(options, highlightOptions) {
@@ -323,7 +324,12 @@ Renderer.prototype.link = function (href, title, text) {
 
   var out = '';
 
-  if (supportsHyperlinks.stdout) {
+  const { forceHyperLink } = this.o;
+
+  if (
+    forceHyperLink === true ||
+    (forceHyperLink !== false && supportsHyperlinks.stdout)
+  ) {
     let link = '';
     if (text) {
       link = this.o.href(this.emoji(text));
