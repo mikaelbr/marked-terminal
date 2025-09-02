@@ -185,10 +185,10 @@ Renderer.prototype.listitem = function (text) {
   }
   var transform = compose(this.o.listitem, this.transform);
   var isNested = text.indexOf('\n') !== -1;
-  if (isNested) text = text.trim();
+  if (!isNested) text = transform(text);
 
   // Use BULLET_POINT as a marker for ordered or unordered list item
-  return '\n' + BULLET_POINT + transform(text);
+  return '\n' + BULLET_POINT + text;
 };
 
 Renderer.prototype.checkbox = function (checked) {
