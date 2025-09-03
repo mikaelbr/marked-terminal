@@ -181,7 +181,18 @@ Renderer.prototype.listitem = function (text) {
       }
     }
 
-    text += this.parser.parse(item.tokens, !!item.loose);
+    // Process list item tokens correctly
+    // List items can contain both block and inline content
+    for (let i = 0; i < item.tokens.length; i++) {
+      const token = item.tokens[i];
+      if (token.type === 'text' && token.tokens) {
+        // This is inline content with formatting, use parseInline
+        text += this.parser.parseInline(token.tokens);
+      } else {
+        // This is block content or plain text, use parse
+        text += this.parser.parse([token], !!item.loose);
+      }
+    }
   }
   var transform = compose(this.o.listitem, this.transform);
   var isNested = text.indexOf('\n') !== -1;
