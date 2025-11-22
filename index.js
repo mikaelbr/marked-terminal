@@ -4,7 +4,6 @@ import chalk from 'chalk';
 import Table from 'cli-table3';
 import { highlight as highlightCli } from 'cli-highlight';
 import * as emoji from 'node-emoji';
-import ansiEscapes from 'ansi-escapes';
 import supportsHyperlinks from 'supports-hyperlinks';
 import ansiRegex from 'ansi-regex';
 
@@ -330,12 +329,8 @@ Renderer.prototype.link = function (href, title, text) {
     } else {
       link = this.o.href(href);
     }
-    out = ansiEscapes.link(
-      link,
-      href
-        // textLength breaks on '+' in URLs
-        .replace(/\+/g, '%20')
-    );
+    // textLength breaks on '+' in URLs
+    out = `\u001B]8;;${href.replace(/\+/g, '%20')}\u0007${link}\u001B]8;;\u0007`;
   } else {
     if (hasText) out += this.emoji(text) + ' (';
     out += this.o.href(href);
