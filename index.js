@@ -234,15 +234,20 @@ Renderer.prototype.table = function (header, body) {
       body += this.tablerow({ text: cell });
     }
   }
-  var table = new Table(
-    Object.assign(
-      {},
-      {
-        head: generateTableRow(header)[0]
-      },
-      this.tableSettings
-    )
-  );
+
+  const head = generateTableRow(header)[0]
+  const settings = {
+    ...this.tableSettings,
+    head
+  }
+
+  if (this.o.reflowText && !settings.colWidths?.length) {
+    const columnWidth  = Math.floor(this.o.width / head.length)
+    settings.colWidths = head.map(_ => columnWidth)
+    settings.wordWrap  ||= true
+  }
+
+  var table = new Table(settings);
 
   generateTableRow(body, this.transform).forEach(function (row) {
     table.push(row);
@@ -516,14 +521,14 @@ var POINT_REGEX =
 function fixNestedLists(body, indent) {
   var regex = new RegExp(
     '' +
-      '(\\S(?: |  )?)' + // Last char of current point, plus one or two spaces
-      // to allow trailing spaces
-      '((?:' +
-      indent +
-      ')+)' + // Indentation of sub point
-      '(' +
-      POINT_REGEX +
-      '(?:.*)+)$',
+    '(\\S(?: |  )?)' + // Last char of current point, plus one or two spaces
+    // to allow trailing spaces
+    '((?:' +
+    indent +
+    ')+)' + // Indentation of sub point
+    '(' +
+    POINT_REGEX +
+    '(?:.*)+)$',
     'gm'
   ); // Body of subpoint
   return body.replace(regex, '$1\n' + indent + '$2$3');
@@ -553,13 +558,13 @@ var numberedPoint = function (n) {
 function numberedLine(indent, line, num) {
   return isPointedLine(line, indent)
     ? {
-        num: num + 1,
-        line: line.replace(BULLET_POINT, numberedPoint(num + 1))
-      }
+      num: num + 1,
+      line: line.replace(BULLET_POINT, numberedPoint(num + 1))
+    }
     : {
-        num: num,
-        line: toSpaces(numberedPoint(num)) + line
-      };
+      num: num,
+      line: toSpaces(numberedPoint(num)) + line
+    };
 }
 
 function numberedLines(lines, indent) {
@@ -656,7 +661,7 @@ function compose() {
   var funcs = arguments;
   return function () {
     var args = arguments;
-    for (var i = funcs.length; i-- > 0; ) {
+    for (var i = funcs.length; i-- > 0;) {
       args = [funcs[i].apply(this, args)];
     }
     return args[0];

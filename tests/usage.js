@@ -35,7 +35,7 @@ opts.forEach(function (opt) {
 
 let defaultOptions2 = {};
 opts.forEach(function (opt) {
-  defaultOptions[opt] = identity;
+  defaultOptions2[opt] = identity;
 });
 defaultOptions2.reflowText = true;
 defaultOptions2.showSectionPrefix = false;
@@ -136,6 +136,20 @@ describe('Renderer', function () {
 
     notEqual(marked(markdownText, markedOptions).indexOf('<CommandParam>'), -1);
   });
+
+  it('should reflow tables', function () {
+     let text =
+      'Usage | Syntax' +
+      '\r\n' +
+      '------|-------' +
+      '\r\n' +
+      'General |`$ shell <CommandParam>`';
+
+    let expected = "┌─────┬─────┐\n│ Us… │ Sy… │\n├─────┼─────┤\n│ Ge… │ $   │\n│     │ sh… │\n│     │ <C… │\n└─────┴─────┘\n\n"
+
+    const result = markup(text, true)
+    equal(result, expected)
+  })
 
   it('should reflow paragraph and split words that are too long (one break)', function () {
     let text = 'Now is the time: 01234567890\n';
