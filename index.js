@@ -241,10 +241,10 @@ Renderer.prototype.table = function (header, body) {
     head
   }
 
-  if (this.o.reflowText) {
+  if (this.o.reflowText && !settings.colWidths?.length) {
     const columnWidth  = Math.floor(this.o.width / head.length)
     settings.colWidths = head.map(_ => columnWidth)
-    settings.wordWrap  = true
+    settings.wordWrap  ||= true
   }
 
   var table = new Table(settings);
