@@ -1,7 +1,7 @@
 import { equal } from 'assert';
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
-import Renderer from '../index.js';
+import Renderer from '../dist/index.js';
 import marked, { resetMarked } from './_marked.js';
 import { fileURLToPath } from 'url';
 

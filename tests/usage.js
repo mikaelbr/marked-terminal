@@ -1,5 +1,5 @@
 import { equal, notEqual } from 'assert';
-import Renderer from '../index.js';
+import Renderer from '../dist/index.js';
 import marked, { resetMarked } from './_marked.js';
 
 let identity = function (o) {
