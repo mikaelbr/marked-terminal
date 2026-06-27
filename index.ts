@@ -4,7 +4,7 @@ import { highlight as highlightCli } from 'cli-highlight';
 import type { HighlightOptions } from 'cli-highlight';
 import * as emoji from 'node-emoji';
 import ansiEscapes from 'ansi-escapes';
-import * as supportsHyperlinks from 'supports-hyperlinks';
+import supportsHyperlinks from 'supports-hyperlinks';
 import ansiRegex from 'ansi-regex';
 import type {
   MarkedExtension,
