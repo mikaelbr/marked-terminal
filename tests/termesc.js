@@ -1,5 +1,5 @@
 import { equal } from 'assert';
-import Renderer from '../index.js';
+import Renderer from '../dist/index.js';
 
 describe('Terminal escape', function () {
   var r = new Renderer();

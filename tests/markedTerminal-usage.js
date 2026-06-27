@@ -1,5 +1,5 @@
 import { equal, notEqual } from 'assert';
-import { markedTerminal } from '../index.js';
+import { markedTerminal } from '../dist/index.js';
 import marked, { resetMarked } from './_marked.js';
 
 let identity = function (o) {
