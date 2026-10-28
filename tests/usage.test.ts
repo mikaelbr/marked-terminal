@@ -83,6 +83,51 @@ describe('Renderer', () => {
     expect(render(text, plainOptions)).toContain('<CommandParam>');
   });
 
+  it('should reflow tables to fit within width', () => {
+    const text =
+      'Usage | Syntax\n------|-------\nGeneral |`$ shell <CommandParam>`';
+    const result = stripTermEsc(
+      render(text, { ...reflowOptions, width: 20 }, { gfm: true })
+    );
+    expect(result).toBe(
+      '┌────────┬────────┐\n' +
+        '│ Usage  │ Syntax │\n' +
+        '├────────┼────────┤\n' +
+        '│ Gener… │ $      │\n' +
+        '│        │ shell  │\n' +
+        '│        │ <Comm… │\n' +
+        '└────────┴────────┘\n\n'
+    );
+    for (const line of result.split('\n')) {
+      expect(line.length).toBeLessThanOrEqual(20);
+    }
+  });
+
+  it('should not stretch tables that already fit when reflowing', () => {
+    const result = stripTermEsc(
+      render(
+        'a | b\n--|--\n1 | 2',
+        { ...reflowOptions, width: 20 },
+        { gfm: true }
+      )
+    );
+    expect(result).toBe(
+      '┌───┬───┐\n│ a │ b │\n├───┼───┤\n│ 1 │ 2 │\n└───┴───┘\n\n'
+    );
+  });
+
+  it('should respect user colWidths when reflowing tables', () => {
+    const text = 'Usage | Syntax\n------|-------\nGeneral | Value';
+    const result = stripTermEsc(
+      render(
+        text,
+        { ...reflowOptions, tableOptions: { colWidths: [12, 12] } },
+        { gfm: true }
+      )
+    );
+    expect(result.split('\n')[0]).toBe('┌────────────┬────────────┐');
+  });
+
   it('should reflow paragraph and split words that are too long (one break)', () => {
     expect(markup('Now is the time: 01234567890\n')).toBe(
       'Now is the\ntime: 0123\n4567890\n\n'

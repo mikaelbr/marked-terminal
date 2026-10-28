@@ -271,15 +271,35 @@ export function markedTerminal(
         body += this.tablerow({ text: cell });
       }
 
-      const table = new Table({
-        head: generateTableRow(header)[0],
-        ...o.tableOptions
-      });
+      const head = generateTableRow(header)[0];
+      const rows = generateTableRow(body, transform);
+      const buildTable = (extra: Table.TableConstructorOptions = {}) => {
+        const table = new Table({ head, ...o.tableOptions, ...extra });
+        for (const row of rows) {
+          table.push(row);
+        }
+        return table.toString();
+      };
 
-      for (const row of generateTableRow(body, transform)) {
-        table.push(row);
+      let rendered = buildTable();
+      if (
+        o.reflowText &&
+        o.width &&
+        head?.length &&
+        !o.tableOptions?.colWidths?.length &&
+        textLength(rendered.split('\n')[0] ?? '') > o.width
+      ) {
+        // Distribute available width equally, minus the column borders
+        const columnWidth = Math.max(
+          Math.floor((o.width - (head.length + 1)) / head.length),
+          3
+        );
+        rendered = buildTable({
+          colWidths: head.map(() => columnWidth),
+          wordWrap: o.tableOptions?.wordWrap ?? true
+        });
       }
-      return section(o.table(table.toString()));
+      return section(o.table(rendered));
     },
 
     tablerow(token) {

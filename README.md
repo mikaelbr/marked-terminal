@@ -106,7 +106,7 @@ const defaultOptions = {
 
   // Reflow and print-out width
   width: 80, // only applicable when reflow is true
-  reflowText: false,
+  reflowText: false, // also shrinks tables wider than `width` (unless tableOptions.colWidths is set)
 
   // Should it prefix headers?
   showSectionPrefix: true,
