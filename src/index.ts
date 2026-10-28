@@ -229,13 +229,18 @@ export function markedTerminal(
         tokens: Token[],
         top?: boolean
       ) => string;
-      text += parse.call(this.parser, item.tokens, !!item.loose);
+      // Style only the item's own content. Nested lists are already styled,
+      // and styling across newlines makes chalk insert escape codes at line
+      // starts, which breaks nested list indentation.
+      const ownTokens = item.tokens.filter((t) => t.type !== 'list');
+      const nestedLists = item.tokens.filter((t) => t.type === 'list');
+      text += parse.call(this.parser, ownTokens, !!item.loose);
+      if (text.includes('\n')) text = text.trim();
 
-      const isNested = text.includes('\n');
-      if (isNested) text = text.trim();
+      const nested = parse.call(this.parser, nestedLists).trimEnd();
 
       // Use BULLET_POINT as a marker for ordered or unordered list item
-      return `\n${BULLET_POINT}${o.listitem(transform(text))}`;
+      return `\n${BULLET_POINT}${o.listitem(transform(text))}${nested}`;
     },
 
     checkbox(token) {

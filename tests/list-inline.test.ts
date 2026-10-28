@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { TerminalRendererOptions } from '../src/index.ts';
 import { identity, render, stripTermEsc } from './helpers.ts';
 
@@ -56,6 +56,21 @@ describe('Inline formatting in lists', () => {
   it('should preserve plain text list items', () => {
     expect(markup('1. plain text\n2. more plain text')).toBe(
       '    1. plain text\n    2. more plain text\n\n'
+    );
+  });
+});
+
+describe('Nested lists with colors', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('should not add blank lines between deeply nested items', () => {
+    vi.stubEnv('FORCE_COLOR', '1');
+    expect(
+      stripTermEsc(render('* a\n    * b\n        * c\n        * d\n    * e'))
+    ).toBe(
+      '    * a\n        * b\n            * c\n            * d\n        * e\n\n'
     );
   });
 });
