@@ -12,7 +12,8 @@
   },
   "packageManager": "pnpm@12.16.1+sha512.091d1dee7927575661b25dab3c2ae31cafc1c54d6b71ed6a6600cf0c1cb10434a447eae14015f1b23e2e6bedeed79df94a932e2164d2832280dce3fb32f656d1",
   "scripts": {
-    "test": "cross-env FORCE_HYPERLINK=0 mocha tests/*.js --reporter spec"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "files": [
     "index.js"
@@ -42,9 +43,8 @@
     "example": "example"
   },
   "devDependencies": {
-    "cross-env": "^7.0.3",
     "marked": "^18.1.0",
-    "mocha": "^11.8.0"
+    "vitest": "^5.0.5"
   },
   "repository": {
     "type": "git",
