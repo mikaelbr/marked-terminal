@@ -1,11 +1,11 @@
-import chalk from 'chalk';
+import { styleText } from 'node:util';
 import { marked } from 'marked';
 import { markedTerminal } from '../src/index.ts';
 
 marked.use(
   markedTerminal({
     // Change style for code
-    codespan: chalk.underline.magenta,
+    codespan: (text) => styleText(['underline', 'magenta'], text),
     emoji: true,
 
     // Can also override color/styling by own functions.

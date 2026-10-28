@@ -1,5 +1,4 @@
 import { stripVTControlCharacters } from 'node:util';
-import chalk from 'chalk';
 import Table from 'cli-table3';
 import type {
   MarkedExtension,
@@ -11,7 +10,7 @@ import type {
 import * as emoji from 'node-emoji';
 import supportsHyperlinks from 'supports-hyperlinks';
 import { type HighlightOptions, highlight } from './highlight.ts';
-import type { StyleFn } from './style.ts';
+import { type StyleFn, style } from './style.ts';
 
 export type { HighlightOptions } from './highlight.ts';
 export type { StyleFn } from './style.ts';
@@ -88,22 +87,22 @@ const HARD_RETURN_RE = new RegExp(HARD_RETURN);
 const HARD_RETURN_GFM_RE = new RegExp(`${HARD_RETURN}|<br />`);
 
 const defaultOptions: ResolvedOptions = {
-  code: chalk.yellow,
-  blockquote: chalk.gray.italic,
-  html: chalk.gray,
-  heading: chalk.green.bold,
-  firstHeading: chalk.magenta.underline.bold,
-  hr: chalk.reset,
-  listitem: chalk.reset,
+  code: style('yellow'),
+  blockquote: style(['gray', 'italic']),
+  html: style('gray'),
+  heading: style(['green', 'bold']),
+  firstHeading: style(['magenta', 'underline', 'bold']),
+  hr: style('reset'),
+  listitem: style('reset'),
   list: list,
-  table: chalk.reset,
-  paragraph: chalk.reset,
-  strong: chalk.bold,
-  em: chalk.italic,
-  codespan: chalk.yellow,
-  del: chalk.dim.gray.strikethrough,
-  link: chalk.blue,
-  href: chalk.blue.underline,
+  table: style('reset'),
+  paragraph: style('reset'),
+  strong: style('bold'),
+  em: style('italic'),
+  codespan: style('yellow'),
+  del: style(['dim', 'gray', 'strikethrough']),
+  link: style('blue'),
+  href: style(['blue', 'underline']),
   text: identity,
   unescape: true,
   emoji: true,

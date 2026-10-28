@@ -1,9 +1,8 @@
-import chalk from 'chalk';
 import {
   type HighlightOptions,
   highlight as highlightCli
 } from 'cli-highlight';
-import type { StyleFn } from './style.ts';
+import { type StyleFn, shouldColorize } from './style.ts';
 
 export type { HighlightOptions };
 
@@ -13,7 +12,7 @@ export function highlight(
   fallback: StyleFn,
   options: HighlightOptions
 ): string {
-  if (chalk.level === 0) return code;
+  if (!shouldColorize()) return code;
 
   try {
     return highlightCli(code, { language, ...options });
