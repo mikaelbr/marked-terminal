@@ -1,9 +1,9 @@
 import type { MarkedExtension } from 'marked';
 import { describe, expectTypeOf, it } from 'vitest';
-import TerminalRenderer, {
+import * as api from '../src/index.ts';
+import {
   type HighlightOptions,
   markedTerminal,
-  TerminalRenderer as NamedTerminalRenderer,
   type TerminalRendererOptions
 } from '../src/index.ts';
 
@@ -18,10 +18,9 @@ describe('public types', () => {
       .toEqualTypeOf<HighlightOptions | undefined>();
   });
 
-  it('exports the renderer as default and named export', () => {
-    expectTypeOf(NamedTerminalRenderer).toEqualTypeOf<
-      typeof TerminalRenderer
-    >();
+  it('exports only functions, no renderer class', () => {
+    expectTypeOf(api).not.toHaveProperty('default');
+    expectTypeOf(api).not.toHaveProperty('TerminalRenderer');
   });
 
   it('accepts any string function as style', () => {

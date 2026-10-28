@@ -1,9 +1,6 @@
 import { Marked } from 'marked';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import TerminalRenderer, {
-  markedTerminal,
-  type TerminalRendererOptions
-} from '../src/index.ts';
+import { markedTerminal, type TerminalRendererOptions } from '../src/index.ts';
 
 // Control characters (other than \t and \n) that must never reach the
 // terminal from untrusted Markdown input.
@@ -112,13 +109,5 @@ describe('Control characters in input', () => {
     for (const arg of args) {
       expect(CONTROL_RE.test(String(arg)), JSON.stringify(arg)).toBe(false);
     }
-  });
-
-  it('should sanitize when using Renderer directly', () => {
-    const r = new TerminalRenderer();
-    const token = { text: `a${PAYLOAD}` } as never;
-    expect(CONTROL_RE.test(stripOwnEscapes(r.codespan(token)))).toBe(false);
-    expect(CONTROL_RE.test(stripOwnEscapes(r.html(token)))).toBe(false);
-    expect(CONTROL_RE.test(stripOwnEscapes(r.text(token)))).toBe(false);
   });
 });

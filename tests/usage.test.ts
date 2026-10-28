@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { TerminalRendererOptions } from '../src/index.ts';
-import { modes, plainOptions, stripTermEsc } from './helpers.ts';
+import { plainOptions, render, stripTermEsc } from './helpers.ts';
 
 const tableOptions: TerminalRendererOptions = {
   ...plainOptions,
@@ -13,7 +13,7 @@ const reflowOptions: TerminalRendererOptions = {
   width: 10
 };
 
-describe.each(modes)('Renderer ($name)', ({ render }) => {
+describe('Renderer', () => {
   const markup = (str: string, gfm = false) =>
     stripTermEsc(render(str, reflowOptions, { gfm }));
 

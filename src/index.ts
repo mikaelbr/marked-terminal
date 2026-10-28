@@ -1,12 +1,6 @@
 import { stripVTControlCharacters } from 'node:util';
 import Table from 'cli-table3';
-import type {
-  MarkedExtension,
-  MarkedOptions,
-  Parser,
-  Token,
-  Tokens
-} from 'marked';
+import type { MarkedExtension, RendererObject, Token } from 'marked';
 import * as emoji from 'node-emoji';
 import supportsHyperlinks from 'supports-hyperlinks';
 import { type HighlightOptions, highlight } from './highlight.ts';
@@ -125,279 +119,6 @@ function fixHardReturn(text: string, reflow: boolean): string {
 }
 
 /**
- * Renderer for marked that outputs to the terminal.
- *
- * Prefer `marked.use(markedTerminal(options))`. The class can also be
- * passed directly as `marked.setOptions({ renderer: new TerminalRenderer() })`.
- */
-export default class TerminalRenderer {
-  o: ResolvedOptions;
-  tab: string;
-  tableSettings: Table.TableConstructorOptions;
-  emoji: StyleFn;
-  unescape: StyleFn;
-  highlightOptions: HighlightOptions;
-  transform: StyleFn;
-
-  /** Set by marked before rendering. */
-  options!: MarkedOptions;
-  /** Set by marked before rendering. */
-  parser!: Parser;
-
-  constructor(
-    options?: TerminalRendererOptions,
-    highlightOptions?: HighlightOptions
-  ) {
-    this.o = { ...defaultOptions, ...options };
-    this.tab = sanitizeTab(this.o.tab, defaultOptions.tab as number);
-    this.tableSettings = this.o.tableOptions;
-    this.emoji = this.o.emoji ? insertEmojis : identity;
-    this.unescape = this.o.unescape ? unescapeEntities : identity;
-    this.highlightOptions = highlightOptions ?? {};
-
-    this.transform = compose(undoColon, this.unescape, this.emoji);
-  }
-
-  textLength(str: string): number {
-    return textLength(str);
-  }
-
-  space(): string {
-    return '';
-  }
-
-  text(token: Tokens.Text | Tokens.Escape): string {
-    return this.o.text(stripControlChars(token.text));
-  }
-
-  code(token: Tokens.Code): string {
-    return section(
-      indentify(
-        this.tab,
-        highlight(
-          fixHardReturn(stripControlChars(token.text), this.o.reflowText),
-          token.lang,
-          this.o.code,
-          this.highlightOptions
-        )
-      )
-    );
-  }
-
-  blockquote(token: Tokens.Blockquote): string {
-    const quote = this.parser.parse(token.tokens);
-    return section(this.o.blockquote(indentify(this.tab, quote.trim())));
-  }
-
-  html(token: Tokens.HTML | Tokens.Tag): string {
-    return this.o.html(stripControlChars(token.text));
-  }
-
-  heading(token: Tokens.Heading): string {
-    const level = token.depth;
-    let text = this.transform(this.parser.parseInline(token.tokens));
-
-    const prefix = this.o.showSectionPrefix ? `${'#'.repeat(level)} ` : '';
-    text = prefix + text;
-    if (this.o.reflowText) {
-      text = reflowText(text, this.o.width, this.options.gfm);
-    }
-    return section(
-      level === 1 ? this.o.firstHeading(text) : this.o.heading(text)
-    );
-  }
-
-  hr(_token?: Tokens.Hr): string {
-    return section(this.o.hr(hr('-', this.o.reflowText && this.o.width)));
-  }
-
-  list(token: Tokens.List): string {
-    let body = '';
-    for (const item of token.items) {
-      body += this.listitem(item);
-    }
-    body = this.o.list(body, token.ordered, this.tab);
-    return section(fixNestedLists(indentLines(this.tab, body), this.tab));
-  }
-
-  listitem(item: Tokens.ListItem): string {
-    let text = '';
-    if (item.task) {
-      const checkbox = this.checkbox({ checked: !!item.checked });
-      if (item.loose) {
-        const first = item.tokens[0];
-        if (first?.type === 'paragraph') {
-          first.text = `${checkbox} ${first.text}`;
-          const firstInline = first.tokens?.[0];
-          if (firstInline?.type === 'text') {
-            firstInline.text = `${checkbox} ${firstInline.text}`;
-          }
-        } else {
-          item.tokens.unshift({
-            type: 'text',
-            raw: `${checkbox} `,
-            text: `${checkbox} `
-          });
-        }
-      } else {
-        text += `${checkbox} `;
-      }
-    }
-
-    // marked < 15 takes a second `top` argument, later versions ignore it
-    const parse = this.parser.parse as (
-      tokens: Token[],
-      top?: boolean
-    ) => string;
-    text += parse.call(this.parser, item.tokens, !!item.loose);
-
-    const transform = compose(this.o.listitem, this.transform);
-    const isNested = text.includes('\n');
-    if (isNested) text = text.trim();
-
-    // Use BULLET_POINT as a marker for ordered or unordered list item
-    return `\n${BULLET_POINT}${transform(text)}`;
-  }
-
-  checkbox(token: Pick<Tokens.Checkbox, 'checked'>): string {
-    return `[${token.checked ? 'X' : ' '}] `;
-  }
-
-  paragraph(token: Tokens.Paragraph): string {
-    const transform = compose(this.o.paragraph, this.transform);
-    let text = transform(this.parser.parseInline(token.tokens));
-    if (this.o.reflowText) {
-      text = reflowText(text, this.o.width, this.options.gfm);
-    }
-    return section(text);
-  }
-
-  table(token: Tokens.Table): string {
-    let cell = '';
-    for (const headerCell of token.header) {
-      cell += this.tablecell(headerCell);
-    }
-    const header = this.tablerow({ text: cell });
-
-    let body = '';
-    for (const row of token.rows) {
-      cell = '';
-      for (const rowCell of row) {
-        cell += this.tablecell(rowCell);
-      }
-      body += this.tablerow({ text: cell });
-    }
-
-    const table = new Table({
-      head: generateTableRow(header)[0],
-      ...this.tableSettings
-    });
-
-    for (const row of generateTableRow(body, this.transform)) {
-      table.push(row);
-    }
-    return section(this.o.table(table.toString()));
-  }
-
-  tablerow(token: Pick<Tokens.TableRow, 'text'>): string {
-    return `${TABLE_ROW_WRAP}${token.text}${TABLE_ROW_WRAP}\n`;
-  }
-
-  tablecell(token: Tokens.TableCell): string {
-    return this.parser.parseInline(token.tokens) + TABLE_CELL_SPLIT;
-  }
-
-  // span level renderer
-  strong(token: Tokens.Strong): string {
-    return this.o.strong(this.parser.parseInline(token.tokens));
-  }
-
-  em(token: Tokens.Em): string {
-    const text = this.parser.parseInline(token.tokens);
-    return this.o.em(fixHardReturn(text, this.o.reflowText));
-  }
-
-  codespan(token: Tokens.Codespan): string {
-    const text = fixHardReturn(
-      stripControlChars(token.text),
-      this.o.reflowText
-    );
-    return this.o.codespan(text.replace(/:/g, COLON_REPLACER));
-  }
-
-  br(_token?: Tokens.Br): string {
-    return this.o.reflowText ? HARD_RETURN : '\n';
-  }
-
-  del(token: Tokens.Del): string {
-    return this.o.del(this.parser.parseInline(token.tokens));
-  }
-
-  link(token: Tokens.Link): string {
-    const text = this.parser.parseInline(token.tokens);
-    // `text` is already rendered (and sanitized) inline content
-    const href = stripControlChars(token.href);
-    const hasText = text && text !== href;
-
-    let out = '';
-
-    if (supportsHyperlinks.stdout) {
-      const link = text ? this.o.href(this.emoji(text)) : this.o.href(href);
-      out = terminalLink(
-        link,
-        // textLength breaks on '+' in URLs
-        href.replace(/\+/g, '%20')
-      );
-    } else {
-      if (hasText) out += `${this.emoji(text)} (`;
-      out += this.o.href(href);
-      if (hasText) out += ')';
-    }
-    return this.o.link(out);
-  }
-
-  image(token: Tokens.Image): string {
-    const href = stripControlChars(token.href);
-    const title = stripControlChars(token.title);
-    const text = stripControlChars(token.text);
-
-    if (typeof this.o.image === 'function') {
-      return this.o.image(href, title, text);
-    }
-    let out = `![${text}`;
-    if (title) out += ` – ${title}`;
-    return `${out}](${href})\n`;
-  }
-}
-
-export { TerminalRenderer };
-
-const RENDERER_FUNCTIONS = [
-  'text',
-  'code',
-  'blockquote',
-  'html',
-  'heading',
-  'hr',
-  'list',
-  'listitem',
-  'checkbox',
-  'paragraph',
-  'table',
-  'tablerow',
-  'tablecell',
-  'strong',
-  'em',
-  'codespan',
-  'br',
-  'del',
-  'link',
-  'image'
-] as const;
-
-type RendererFunction = (typeof RENDERER_FUNCTIONS)[number];
-
-/**
  * Create a marked extension that renders Markdown for the terminal.
  *
  * @example
@@ -405,26 +126,219 @@ type RendererFunction = (typeof RENDERER_FUNCTIONS)[number];
  */
 export function markedTerminal(
   options?: TerminalRendererOptions,
-  highlightOptions?: HighlightOptions
+  highlightOptions: HighlightOptions = {}
 ): MarkedExtension {
-  const r = new TerminalRenderer(options, highlightOptions);
+  const o: ResolvedOptions = { ...defaultOptions, ...options };
+  const tab = sanitizeTab(o.tab, defaultOptions.tab as number);
+  const insertEmoji = o.emoji ? insertEmojis : identity;
+  const unescapeHtml = o.unescape ? unescapeEntities : identity;
+  const transform = compose(undoColon, unescapeHtml, insertEmoji);
 
-  const renderer: Partial<
-    Record<
-      RendererFunction,
-      (
-        this: Pick<TerminalRenderer, 'options' | 'parser'>,
-        token: never
-      ) => string
-    >
-  > = {};
-  for (const func of RENDERER_FUNCTIONS) {
-    renderer[func] = function (token) {
-      r.options = this.options;
-      r.parser = this.parser;
-      return (r[func] as (token: unknown) => string)(token);
-    };
-  }
+  const renderer: RendererObject = {
+    space() {
+      return '';
+    },
+
+    text(token) {
+      return o.text(stripControlChars(token.text));
+    },
+
+    code(token) {
+      return section(
+        indentify(
+          tab,
+          highlight(
+            fixHardReturn(stripControlChars(token.text), o.reflowText),
+            token.lang,
+            o.code,
+            highlightOptions
+          )
+        )
+      );
+    },
+
+    blockquote(token) {
+      const quote = this.parser.parse(token.tokens);
+      return section(o.blockquote(indentify(tab, quote.trim())));
+    },
+
+    html(token) {
+      return o.html(stripControlChars(token.text));
+    },
+
+    heading(token) {
+      const level = token.depth;
+      let text = transform(this.parser.parseInline(token.tokens));
+
+      const prefix = o.showSectionPrefix ? `${'#'.repeat(level)} ` : '';
+      text = prefix + text;
+      if (o.reflowText) {
+        text = reflowText(text, o.width, this.options.gfm);
+      }
+      return section(level === 1 ? o.firstHeading(text) : o.heading(text));
+    },
+
+    hr() {
+      return section(o.hr(hr('-', o.reflowText && o.width)));
+    },
+
+    list(token) {
+      let body = '';
+      for (const item of token.items) {
+        body += this.listitem(item);
+      }
+      body = o.list(body, token.ordered, tab);
+      return section(fixNestedLists(indentLines(tab, body), tab));
+    },
+
+    listitem(item) {
+      let text = '';
+      if (item.task) {
+        const checkbox = this.checkbox({
+          type: 'checkbox',
+          raw: '',
+          checked: !!item.checked
+        });
+        if (item.loose) {
+          const first = item.tokens[0];
+          if (first?.type === 'paragraph') {
+            first.text = `${checkbox} ${first.text}`;
+            const firstInline = first.tokens?.[0];
+            if (firstInline?.type === 'text') {
+              firstInline.text = `${checkbox} ${firstInline.text}`;
+            }
+          } else {
+            item.tokens.unshift({
+              type: 'text',
+              raw: `${checkbox} `,
+              text: `${checkbox} `
+            });
+          }
+        } else {
+          text += `${checkbox} `;
+        }
+      }
+
+      // marked < 15 takes a second `top` argument, later versions ignore it
+      const parse = this.parser.parse as (
+        tokens: Token[],
+        top?: boolean
+      ) => string;
+      text += parse.call(this.parser, item.tokens, !!item.loose);
+
+      const isNested = text.includes('\n');
+      if (isNested) text = text.trim();
+
+      // Use BULLET_POINT as a marker for ordered or unordered list item
+      return `\n${BULLET_POINT}${o.listitem(transform(text))}`;
+    },
+
+    checkbox(token) {
+      return `[${token.checked ? 'X' : ' '}] `;
+    },
+
+    paragraph(token) {
+      let text = o.paragraph(transform(this.parser.parseInline(token.tokens)));
+      if (o.reflowText) {
+        text = reflowText(text, o.width, this.options.gfm);
+      }
+      return section(text);
+    },
+
+    table(token) {
+      let cell = '';
+      for (const headerCell of token.header) {
+        cell += this.tablecell(headerCell);
+      }
+      const header = this.tablerow({ text: cell });
+
+      let body = '';
+      for (const row of token.rows) {
+        cell = '';
+        for (const rowCell of row) {
+          cell += this.tablecell(rowCell);
+        }
+        body += this.tablerow({ text: cell });
+      }
+
+      const table = new Table({
+        head: generateTableRow(header)[0],
+        ...o.tableOptions
+      });
+
+      for (const row of generateTableRow(body, transform)) {
+        table.push(row);
+      }
+      return section(o.table(table.toString()));
+    },
+
+    tablerow(token) {
+      return `${TABLE_ROW_WRAP}${token.text}${TABLE_ROW_WRAP}\n`;
+    },
+
+    tablecell(token) {
+      return this.parser.parseInline(token.tokens) + TABLE_CELL_SPLIT;
+    },
+
+    // span level renderer
+    strong(token) {
+      return o.strong(this.parser.parseInline(token.tokens));
+    },
+
+    em(token) {
+      const text = this.parser.parseInline(token.tokens);
+      return o.em(fixHardReturn(text, o.reflowText));
+    },
+
+    codespan(token) {
+      const text = fixHardReturn(stripControlChars(token.text), o.reflowText);
+      return o.codespan(text.replace(/:/g, COLON_REPLACER));
+    },
+
+    br() {
+      return o.reflowText ? HARD_RETURN : '\n';
+    },
+
+    del(token) {
+      return o.del(this.parser.parseInline(token.tokens));
+    },
+
+    link(token) {
+      const text = this.parser.parseInline(token.tokens);
+      // `text` is already rendered (and sanitized) inline content
+      const href = stripControlChars(token.href);
+      const hasText = text && text !== href;
+
+      let out = '';
+
+      if (supportsHyperlinks.stdout) {
+        const link = text ? o.href(insertEmoji(text)) : o.href(href);
+        out = terminalLink(
+          link,
+          // textLength breaks on '+' in URLs
+          href.replace(/\+/g, '%20')
+        );
+      } else {
+        if (hasText) out += `${insertEmoji(text)} (`;
+        out += o.href(href);
+        if (hasText) out += ')';
+      }
+      return o.link(out);
+    },
+
+    image(token) {
+      const href = stripControlChars(token.href);
+      const title = stripControlChars(token.title);
+      const text = stripControlChars(token.text);
+
+      if (typeof o.image === 'function') {
+        return o.image(href, title, text);
+      }
+      let out = `![${text}`;
+      if (title) out += ` – ${title}`;
+      return `${out}](${href})\n`;
+    }
+  };
 
   // `useNewRenderer` makes marked 13 pass tokens to extension renderers.
   // Later versions always do and ignore the flag.

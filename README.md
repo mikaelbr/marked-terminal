@@ -35,14 +35,6 @@ const { marked } = require('marked');
 const { markedTerminal } = require('marked-terminal');
 ```
 
-The renderer class can also be used directly as marked's renderer:
-
-```ts
-import TerminalRenderer from 'marked-terminal';
-
-marked.setOptions({ renderer: new TerminalRenderer() });
-```
-
 This will produce the following:
 
 ![Screenshot of marked-terminal](./screenshot.png)
@@ -77,7 +69,6 @@ This will produce the following:
 
 ```ts
 markedTerminal(options?: TerminalRendererOptions, highlightOptions?: HighlightOptions): MarkedExtension
-new TerminalRenderer(options?: TerminalRendererOptions, highlightOptions?: HighlightOptions)
 ```
 
 ### `options`
@@ -178,8 +169,18 @@ See [more examples](./example/)
 
 - Requires a Node.js LTS version (>= 22.12) and marked >= 13.
 - The package is ESM-only. `require('marked-terminal')` still works through
-  Node's native `require(esm)`, but the default export is then found at
-  `.default`. Prefer the named `markedTerminal` export.
+  Node's native `require(esm)`.
+- The `TerminalRenderer` class (and the default export) is removed. Use the
+  `markedTerminal` extension, the
+  [recommended way](https://marked.js.org/using_pro#renderer) of overriding
+  marked's renderer:
+
+  ```diff
+  - import TerminalRenderer from 'marked-terminal';
+  - marked.setOptions({ renderer: new TerminalRenderer(options, highlightOptions) });
+  + import { markedTerminal } from 'marked-terminal';
+  + marked.use(markedTerminal(options, highlightOptions));
+  ```
 - TypeScript types are bundled; remove `@types/marked-terminal`.
 - `highlightOptions` are now `{ sheet, subset }` (see above) instead of
   [cli-highlight](https://github.com/felixfbecker/cli-highlight) options.

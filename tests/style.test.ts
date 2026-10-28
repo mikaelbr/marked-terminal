@@ -2,7 +2,7 @@ import { Marked } from 'marked';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { markedTerminal } from '../src/index.ts';
 import { shouldColorize, style } from '../src/style.ts';
-import { renderExtension as render } from './helpers.ts';
+import { render } from './helpers.ts';
 
 afterEach(() => {
   vi.unstubAllEnvs();

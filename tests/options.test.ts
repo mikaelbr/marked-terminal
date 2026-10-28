@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import type { TerminalRendererOptions } from '../src/index.ts';
-import { modes, plainOptions } from './helpers.ts';
+import { plainOptions, render } from './helpers.ts';
 
 const options: TerminalRendererOptions = { ...plainOptions, emoji: false };
 
-describe.each(modes)('Options ($name)', ({ render }) => {
+describe('Options', () => {
   it('should not translate emojis', () => {
     expect(render('Some :emoji:', options)).toContain(':emoji:');
   });

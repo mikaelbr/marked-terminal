@@ -1,10 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { stripVTControlCharacters } from 'node:util';
-import { Marked, type MarkedOptions } from 'marked';
-import TerminalRenderer, {
-  markedTerminal,
-  type TerminalRendererOptions
-} from '../src/index.ts';
+import { Marked } from 'marked';
+import { markedTerminal, type TerminalRendererOptions } from '../src/index.ts';
 
 export const identity = (text: string): string => text;
 
@@ -37,25 +34,10 @@ export type Render = (
   markedOptions?: { gfm?: boolean }
 ) => string;
 
-export const renderExtension: Render = (markdown, options, markedOptions) =>
+export const render: Render = (markdown, options, markedOptions) =>
   new Marked(markedTerminal(options), markedOptions ?? {}).parse(
     markdown
   ) as string;
-
-/** The two supported ways of plugging the renderer into marked. */
-export const modes: { name: string; render: Render }[] = [
-  { name: 'markedTerminal extension', render: renderExtension },
-  {
-    name: 'TerminalRenderer class',
-    render: (markdown, options, markedOptions) =>
-      new Marked().parse(markdown, {
-        ...markedOptions,
-        renderer: new TerminalRenderer(
-          options
-        ) as unknown as MarkedOptions['renderer']
-      }) as string
-  }
-];
 
 export function stripTermEsc(str: string): string {
   return stripVTControlCharacters(str);
