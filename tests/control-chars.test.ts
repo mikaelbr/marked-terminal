@@ -7,6 +7,7 @@ import TerminalRenderer, {
 
 // Control characters (other than \t and \n) that must never reach the
 // terminal from untrusted Markdown input.
+// biome-ignore lint/suspicious/noControlCharactersInRegex: matching control characters
 const CONTROL_RE = /[\u0000-\u0008\u000B-\u001F\u007F-\u009F]/;
 
 const ESC = '\u001b';
@@ -19,7 +20,9 @@ const PAYLOAD = `${ESC}]0;PWNED${BEL}${CSI}2J${ESC}[31m`;
 function stripOwnEscapes(str: string): string {
   return (
     str
+      // biome-ignore lint/suspicious/noControlCharactersInRegex: matching ANSI escapes
       .replace(/\u001b\[[\d;]*m/g, '')
+      // biome-ignore lint/suspicious/noControlCharactersInRegex: matching ANSI escapes
       .replace(/\u001b\]8;;[^\u0007\u001b]*\u0007/g, '')
   );
 }

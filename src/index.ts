@@ -79,6 +79,7 @@ const ANSI_REGEXP = ansiRegex();
 // characters. These must never be passed through from the Markdown input,
 // as they allow injecting arbitrary ANSI/OSC escape sequences into the
 // terminal (e.g. ESC, BEL and the 8-bit CSI introducer 0x9B).
+// biome-ignore lint/suspicious/noControlCharactersInRegex: matching control characters
 const CONTROL_CHARS_REGEXP = /[\u0000-\u0008\u000B-\u001F\u007F-\u009F]/g;
 
 // HARD_RETURN holds a character sequence used to indicate text has a
@@ -449,6 +450,7 @@ function reflowText(
   for (const section of sections) {
     // Split the section by escape codes so that we can
     // deal with them separately.
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: matching ANSI escapes
     const fragments = section.split(/(\u001b\[(?:\d{1,3})(?:;\d{1,3})*m)/g);
     let column = 0;
     let currentLine = '';
