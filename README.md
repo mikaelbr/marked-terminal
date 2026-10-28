@@ -195,8 +195,24 @@ pnpm test        # vitest, including type tests
 pnpm lint        # biome
 pnpm typecheck
 pnpm build       # tsdown -> dist/
-node example/demo.ts
 ```
+
+### Running examples
+
+The examples in [`example/`](./example) are TypeScript and import straight from
+`src/`, so there's no build step. Node runs `.ts` files directly through its
+built-in type stripping (unflagged since Node 22.18 / 23.6):
+
+```sh
+node example/demo.ts               # tour of most features
+node example/reflow.ts             # text reflow at a fixed width
+node example/usage.ts              # CLI usage/help output
+node example/print.ts              # render this README
+node example/print.ts path/to.md   # render any Markdown file
+```
+
+Edits to `src/` show up on the next run, which makes the examples handy for
+checking renderer changes by eye.
 
 ## Related
 
