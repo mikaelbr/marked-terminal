@@ -12,7 +12,8 @@ import supportsHyperlinks from 'supports-hyperlinks';
 import { type HighlightOptions, highlight } from './highlight.ts';
 import { type StyleFn, style } from './style.ts';
 
-export type { HighlightOptions } from './highlight.ts';
+export type { HighlightOptions, Sheet } from './highlight.ts';
+export { defaultSheet } from './highlight.ts';
 export type { StyleFn } from './style.ts';
 
 export type ListFn = (body: string, ordered: boolean, indent: string) => string;

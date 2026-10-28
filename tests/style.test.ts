@@ -1,4 +1,6 @@
+import { Marked } from 'marked';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { markedTerminal } from '../src/index.ts';
 import { shouldColorize, style } from '../src/style.ts';
 import { renderExtension as render } from './helpers.ts';
 
@@ -39,12 +41,27 @@ describe('colors', () => {
 describe('syntax highlighting', () => {
   const code = '```js\nconst a = "x";\n```';
 
+  it('should highlight known languages', () => {
+    vi.stubEnv('FORCE_COLOR', '1');
+    const out = render(code);
+    expect(out).toContain('\u001b[34mconst\u001b[39m');
+    expect(out).toContain('\u001b[31m"x"\u001b[39m');
+  });
+
   it('should fall back to the code style for unknown languages', () => {
     vi.stubEnv('FORCE_COLOR', '1');
     const out = render('```nope\nfoo\n```', {
       code: (text) => `<${text}>`
     });
     expect(out).toBe('    <foo>\n\n');
+  });
+
+  it('should accept a custom sheet', () => {
+    vi.stubEnv('FORCE_COLOR', '1');
+    const marked = new Marked(
+      markedTerminal({}, { sheet: { keyword: (text) => `[${text}]` } })
+    );
+    expect(marked.parse(code)).toBe('    [const] a = "x";\n\n');
   });
 
   it('should not highlight when colors are disabled', () => {
