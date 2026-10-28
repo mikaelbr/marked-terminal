@@ -81,44 +81,31 @@ Renderer.prototype.space = function () {
   return '';
 };
 
-Renderer.prototype.text = function (text) {
-  if (typeof text === 'object') {
-    text = text.text;
-  }
-  return this.o.text(text);
+Renderer.prototype.text = function (token) {
+  return this.o.text(token.text);
 };
 
-Renderer.prototype.code = function (code, lang, escaped) {
-  if (typeof code === 'object') {
-    lang = code.lang;
-    escaped = !!code.escaped;
-    code = code.text;
-  }
+Renderer.prototype.code = function (token) {
   return section(
-    indentify(this.tab, highlight(code, lang, this.o, this.highlightOptions))
+    indentify(
+      this.tab,
+      highlight(token.text, token.lang, this.o, this.highlightOptions)
+    )
   );
 };
 
-Renderer.prototype.blockquote = function (quote) {
-  if (typeof quote === 'object') {
-    quote = this.parser.parse(quote.tokens);
-  }
+Renderer.prototype.blockquote = function (token) {
+  var quote = this.parser.parse(token.tokens);
   return section(this.o.blockquote(indentify(this.tab, quote.trim())));
 };
 
-Renderer.prototype.html = function (html) {
-  if (typeof html === 'object') {
-    html = html.text;
-  }
-  return this.o.html(html);
+Renderer.prototype.html = function (token) {
+  return this.o.html(token.text);
 };
 
-Renderer.prototype.heading = function (text, level) {
-  if (typeof text === 'object') {
-    level = text.depth;
-    text = this.parser.parseInline(text.tokens);
-  }
-  text = this.transform(text);
+Renderer.prototype.heading = function (token) {
+  var level = token.depth;
+  var text = this.transform(this.parser.parseInline(token.tokens));
 
   var prefix = this.o.showSectionPrefix
     ? new Array(level + 1).join('#') + ' '
@@ -136,53 +123,43 @@ Renderer.prototype.hr = function () {
   return section(this.o.hr(hr('-', this.o.reflowText && this.o.width)));
 };
 
-Renderer.prototype.list = function (body, ordered) {
-  if (typeof body === 'object') {
-    const listToken = body;
-    const start = listToken.start;
-    const loose = listToken.loose;
-
-    ordered = listToken.ordered;
-    body = '';
-    for (let j = 0; j < listToken.items.length; j++) {
-      body += this.listitem(listToken.items[j]);
-    }
+Renderer.prototype.list = function (token) {
+  var body = '';
+  for (let j = 0; j < token.items.length; j++) {
+    body += this.listitem(token.items[j]);
   }
-  body = this.o.list(body, ordered, this.tab);
+  body = this.o.list(body, token.ordered, this.tab);
   return section(fixNestedLists(indentLines(this.tab, body), this.tab));
 };
 
-Renderer.prototype.listitem = function (text) {
-  if (typeof text === 'object') {
-    const item = text;
-    text = '';
-    if (item.task) {
-      const checkbox = this.checkbox({ checked: !!item.checked });
-      if (item.loose) {
-        if (item.tokens.length > 0 && item.tokens[0].type === 'paragraph') {
-          item.tokens[0].text = checkbox + ' ' + item.tokens[0].text;
-          if (
-            item.tokens[0].tokens &&
-            item.tokens[0].tokens.length > 0 &&
-            item.tokens[0].tokens[0].type === 'text'
-          ) {
-            item.tokens[0].tokens[0].text =
-              checkbox + ' ' + item.tokens[0].tokens[0].text;
-          }
-        } else {
-          item.tokens.unshift({
-            type: 'text',
-            raw: checkbox + ' ',
-            text: checkbox + ' '
-          });
+Renderer.prototype.listitem = function (item) {
+  var text = '';
+  if (item.task) {
+    const checkbox = this.checkbox({ checked: !!item.checked });
+    if (item.loose) {
+      if (item.tokens.length > 0 && item.tokens[0].type === 'paragraph') {
+        item.tokens[0].text = checkbox + ' ' + item.tokens[0].text;
+        if (
+          item.tokens[0].tokens &&
+          item.tokens[0].tokens.length > 0 &&
+          item.tokens[0].tokens[0].type === 'text'
+        ) {
+          item.tokens[0].tokens[0].text =
+            checkbox + ' ' + item.tokens[0].tokens[0].text;
         }
       } else {
-        text += checkbox + ' ';
+        item.tokens.unshift({
+          type: 'text',
+          raw: checkbox + ' ',
+          text: checkbox + ' '
+        });
       }
+    } else {
+      text += checkbox + ' ';
     }
-
-    text += this.parser.parse(item.tokens, !!item.loose);
   }
+
+  text += this.parser.parse(item.tokens, !!item.loose);
   var transform = compose(this.o.listitem, this.transform);
   var isNested = text.indexOf('\n') !== -1;
   if (isNested) text = text.trim();
@@ -191,48 +168,37 @@ Renderer.prototype.listitem = function (text) {
   return '\n' + BULLET_POINT + transform(text);
 };
 
-Renderer.prototype.checkbox = function (checked) {
-  if (typeof checked === 'object') {
-    checked = checked.checked;
-  }
-  return '[' + (checked ? 'X' : ' ') + '] ';
+Renderer.prototype.checkbox = function (token) {
+  return '[' + (token.checked ? 'X' : ' ') + '] ';
 };
 
-Renderer.prototype.paragraph = function (text) {
-  if (typeof text === 'object') {
-    text = this.parser.parseInline(text.tokens);
-  }
+Renderer.prototype.paragraph = function (token) {
   var transform = compose(this.o.paragraph, this.transform);
-  text = transform(text);
+  var text = transform(this.parser.parseInline(token.tokens));
   if (this.o.reflowText) {
     text = reflowText(text, this.o.width, this.options.gfm);
   }
   return section(text);
 };
 
-Renderer.prototype.table = function (header, body) {
-  if (typeof header === 'object') {
-    const token = header;
-    header = '';
+Renderer.prototype.table = function (token) {
+  // header
+  let cell = '';
+  for (let j = 0; j < token.header.length; j++) {
+    cell += this.tablecell(token.header[j]);
+  }
+  var header = this.tablerow({ text: cell });
 
-    // header
-    let cell = '';
-    for (let j = 0; j < token.header.length; j++) {
-      cell += this.tablecell(token.header[j]);
+  var body = '';
+  for (let j = 0; j < token.rows.length; j++) {
+    const row = token.rows[j];
+
+    cell = '';
+    for (let k = 0; k < row.length; k++) {
+      cell += this.tablecell(row[k]);
     }
-    header += this.tablerow({ text: cell });
 
-    body = '';
-    for (let j = 0; j < token.rows.length; j++) {
-      const row = token.rows[j];
-
-      cell = '';
-      for (let k = 0; k < row.length; k++) {
-        cell += this.tablecell(row[k]);
-      }
-
-      body += this.tablerow({ text: cell });
-    }
+    body += this.tablerow({ text: cell });
   }
   var table = new Table(
     Object.assign(
@@ -250,41 +216,27 @@ Renderer.prototype.table = function (header, body) {
   return section(this.o.table(table.toString()));
 };
 
-Renderer.prototype.tablerow = function (content) {
-  if (typeof content === 'object') {
-    content = content.text;
-  }
-  return TABLE_ROW_WRAP + content + TABLE_ROW_WRAP + '\n';
+Renderer.prototype.tablerow = function (token) {
+  return TABLE_ROW_WRAP + token.text + TABLE_ROW_WRAP + '\n';
 };
 
-Renderer.prototype.tablecell = function (content) {
-  if (typeof content === 'object') {
-    content = this.parser.parseInline(content.tokens);
-  }
-  return content + TABLE_CELL_SPLIT;
+Renderer.prototype.tablecell = function (token) {
+  return this.parser.parseInline(token.tokens) + TABLE_CELL_SPLIT;
 };
 
 // span level renderer
-Renderer.prototype.strong = function (text) {
-  if (typeof text === 'object') {
-    text = this.parser.parseInline(text.tokens);
-  }
-  return this.o.strong(text);
+Renderer.prototype.strong = function (token) {
+  return this.o.strong(this.parser.parseInline(token.tokens));
 };
 
-Renderer.prototype.em = function (text) {
-  if (typeof text === 'object') {
-    text = this.parser.parseInline(text.tokens);
-  }
+Renderer.prototype.em = function (token) {
+  var text = this.parser.parseInline(token.tokens);
   text = fixHardReturn(text, this.o.reflowText);
   return this.o.em(text);
 };
 
-Renderer.prototype.codespan = function (text) {
-  if (typeof text === 'object') {
-    text = text.text;
-  }
-  text = fixHardReturn(text, this.o.reflowText);
+Renderer.prototype.codespan = function (token) {
+  var text = fixHardReturn(token.text, this.o.reflowText);
   return this.o.codespan(text.replace(/:/g, COLON_REPLACER));
 };
 
@@ -292,32 +244,13 @@ Renderer.prototype.br = function () {
   return this.o.reflowText ? HARD_RETURN : '\n';
 };
 
-Renderer.prototype.del = function (text) {
-  if (typeof text === 'object') {
-    text = this.parser.parseInline(text.tokens);
-  }
-  return this.o.del(text);
+Renderer.prototype.del = function (token) {
+  return this.o.del(this.parser.parseInline(token.tokens));
 };
 
-Renderer.prototype.link = function (href, title, text) {
-  if (typeof href === 'object') {
-    title = href.title;
-    text = this.parser.parseInline(href.tokens);
-    href = href.href;
-  }
-
-  if (this.options.sanitize) {
-    try {
-      var prot = decodeURIComponent(unescape(href))
-        .replace(/[^\w:]/g, '')
-        .toLowerCase();
-    } catch (e) {
-      return '';
-    }
-    if (prot.indexOf('javascript:') === 0) {
-      return '';
-    }
-  }
+Renderer.prototype.link = function (token) {
+  var href = token.href;
+  var text = this.parser.parseInline(token.tokens);
 
   var hasText = text && text !== href;
 
@@ -344,12 +277,10 @@ Renderer.prototype.link = function (href, title, text) {
   return this.o.link(out);
 };
 
-Renderer.prototype.image = function (href, title, text) {
-  if (typeof href === 'object') {
-    title = href.title;
-    text = href.text;
-    href = href.href;
-  }
+Renderer.prototype.image = function (token) {
+  var href = token.href;
+  var title = token.title;
+  var text = token.text;
 
   if (typeof this.o.image === 'function') {
     return this.o.image(href, title, text);
