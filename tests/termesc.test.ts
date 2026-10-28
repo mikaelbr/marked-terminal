@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import TerminalRenderer from '../index.js';
+import TerminalRenderer from '../src/index.ts';
 
 describe('Terminal escape', () => {
   const r = new TerminalRenderer();

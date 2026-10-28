@@ -1,9 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { stripVTControlCharacters } from 'node:util';
 import { Marked, type MarkedOptions } from 'marked';
-import TerminalRenderer, { markedTerminal } from '../index.js';
-
-export type TerminalRendererOptions = Record<string, any>;
+import TerminalRenderer, {
+  markedTerminal,
+  type TerminalRendererOptions
+} from '../src/index.ts';
 
 export const identity = (text: string): string => text;
 

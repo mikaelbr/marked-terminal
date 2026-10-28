@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import {
-  modes,
-  plainOptions,
-  stripTermEsc,
-  type TerminalRendererOptions
-} from './helpers.ts';
+import type { TerminalRendererOptions } from '../src/index.ts';
+import { modes, plainOptions, stripTermEsc } from './helpers.ts';
 
 const tableOptions: TerminalRendererOptions = {
   ...plainOptions,

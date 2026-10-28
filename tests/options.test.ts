@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import {
-  modes,
-  plainOptions,
-  type TerminalRendererOptions
-} from './helpers.ts';
+import type { TerminalRendererOptions } from '../src/index.ts';
+import { modes, plainOptions } from './helpers.ts';
 
 const options: TerminalRendererOptions = { ...plainOptions, emoji: false };
 
