@@ -2,14 +2,9 @@
   "name": "marked-terminal",
   "version": "7.3.0",
   "description": "A custom render for marked to output to the Terminal",
-  "main": "./index.cjs",
-  "browser": "./index.js",
   "exports": {
-    "node": {
-      "import": "./index.js",
-      "require": "./index.cjs"
-    },
-    "default": "./index.js"
+    ".": "./index.js",
+    "./package.json": "./package.json"
   },
   "type": "module",
   "engines": {
@@ -17,13 +12,10 @@
   },
   "packageManager": "pnpm@12.16.1+sha512.091d1dee7927575661b25dab3c2ae31cafc1c54d6b71ed6a6600cf0c1cb10434a447eae14015f1b23e2e6bedeed79df94a932e2164d2832280dce3fb32f656d1",
   "scripts": {
-    "build": "rollup -c",
-    "prepack": "pnpm run build",
     "test": "cross-env FORCE_HYPERLINK=0 mocha tests/*.js --reporter spec"
   },
   "files": [
-    "index.js",
-    "index.cjs"
+    "index.js"
   ],
   "keywords": [
     "marked",
@@ -50,12 +42,9 @@
     "example": "example"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^29.0.3",
-    "@rollup/plugin-node-resolve": "^16.0.3",
     "cross-env": "^7.0.3",
     "marked": "^18.1.0",
-    "mocha": "^11.8.0",
-    "rollup": "^4.64.5"
+    "mocha": "^11.8.0"
   },
   "repository": {
     "type": "git",
