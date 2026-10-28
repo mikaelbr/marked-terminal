@@ -1,5 +1,4 @@
-import ansiEscapes from 'ansi-escapes';
-import ansiRegex from 'ansi-regex';
+import { stripVTControlCharacters } from 'node:util';
 import chalk from 'chalk';
 import Table from 'cli-table3';
 import type {
@@ -73,8 +72,6 @@ const COLON_REPLACER_REGEXP = new RegExp(escapeRegExp(COLON_REPLACER), 'g');
 
 const TAB_ALLOWED_CHARACTERS = ['\t'];
 
-const ANSI_REGEXP = ansiRegex();
-
 // C0 control characters (except tab and newline), DEL and C1 control
 // characters. These must never be passed through from the Markdown input,
 // as they allow injecting arbitrary ANSI/OSC escape sequences into the
@@ -120,7 +117,7 @@ const defaultOptions: ResolvedOptions = {
 // Compute length of str not including ANSI escape codes.
 // See http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
 function textLength(str: string): number {
-  return str.replace(ANSI_REGEXP, '').length;
+  return stripVTControlCharacters(str).length;
 }
 
 function fixHardReturn(text: string, reflow: boolean): string {
@@ -346,7 +343,7 @@ export default class TerminalRenderer {
 
     if (supportsHyperlinks.stdout) {
       const link = text ? this.o.href(this.emoji(text)) : this.o.href(href);
-      out = ansiEscapes.link(
+      out = terminalLink(
         link,
         // textLength breaks on '+' in URLs
         href.replace(/\+/g, '%20')
@@ -614,6 +611,11 @@ function insertEmojis(text: string): string {
     if (!emojiSign) return emojiString;
     return `${emojiSign} `;
   });
+}
+
+// OSC 8 hyperlink, see https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
+function terminalLink(text: string, url: string): string {
+  return `\u001B]8;;${url}\u0007${text}\u001B]8;;\u0007`;
 }
 
 function hr(inputHrStr: string, length: number | false): string {
