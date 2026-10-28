@@ -1,8 +1,8 @@
 # marked-terminal
 
-> Custom Renderer for [marked](https://github.com/chjj/marked)
+> Custom Renderer for [marked](https://github.com/markedjs/marked)
 > allowing for printing Markdown to the Terminal. Supports pretty tables, syntax
-> highlighting for javascript, and overriding all colors and styles.
+> highlighting, and overriding all colors and styles.
 
 Could for instance be used to print usage information.
 
@@ -14,32 +14,25 @@ Could for instance be used to print usage information.
 npm install marked marked-terminal
 ```
 
+Requires a Node.js LTS version (>= 22.12) and marked >= 13. TypeScript types are included.
+
 ## Example
 
-```javascript
+```ts
 import { marked } from 'marked';
 import { markedTerminal } from 'marked-terminal';
 
 marked.use(markedTerminal([options][, highlightOptions]));
 
-marked.parse('# Hello \n This is **markdown** printed in the `terminal`');
+console.log(marked.parse('# Hello \n This is **markdown** printed in the `terminal`'));
 ```
 
-### Using older versions
+The package is ESM-only. It can still be loaded with `require()` from CommonJS,
+which is supported natively from Node.js 22.12:
 
-```javascript
-const marked = require('marked');
-const TerminalRenderer = require('marked-terminal');
-
-marked.setOptions({
-  // Define custom renderer
-  renderer: new TerminalRenderer()
-});
-
-// Show the parsed data
-console.log(
-  marked('# Hello \n This is **markdown** printed in the `terminal`')
-);
+```js
+const { marked } = require('marked');
+const { markedTerminal } = require('marked-terminal');
 ```
 
 This will produce the following:
@@ -48,8 +41,8 @@ This will produce the following:
 
 ### Syntax Highlighting
 
-Also have support for syntax highlighting using [cli-highlight](https://github.com/felixfbecker/cli-highlight).
-You can override highlighting defaults by passing in settings as the second argument for TerminalRenderer.
+Code blocks are syntax highlighted using [emphasize](https://github.com/wooorm/emphasize)
+(highlight.js). You can override highlighting defaults by passing in settings as the second argument.
 
 Having the following markdown input:
 
@@ -64,9 +57,8 @@ foo('Hello');
 
 ...we will convert it into terminal format:
 
-```javascript
-// Show the parsed data
-console.log(marked(exampleSource));
+```ts
+console.log(marked.parse(exampleSource));
 ```
 
 This will produce the following:
@@ -75,36 +67,42 @@ This will produce the following:
 
 ## API
 
-Constructur: `new TerminalRenderer([options][, highlightOptions])`
+```ts
+markedTerminal(options?: TerminalRendererOptions, highlightOptions?: HighlightOptions): MarkedExtension
+```
 
 ### `options`
 
-Optional
-Used to override default styling.
+Optional. Used to override default styling. Every style is a plain
+`(text: string) => string` function, so you can use `node:util`'s `styleText`,
+`chalk`, `picocolors` or your own functions.
 
 Default values are:
 
-```javascript
-var defaultOptions = {
+```ts
+import { styleText } from 'node:util';
+
+const defaultOptions = {
   // Colors
-  code: chalk.yellow,
-  blockquote: chalk.gray.italic,
-  html: chalk.gray,
-  heading: chalk.green.bold,
-  firstHeading: chalk.magenta.underline.bold,
-  hr: chalk.reset,
-  listitem: chalk.reset,
-  table: chalk.reset,
-  paragraph: chalk.reset,
-  strong: chalk.bold,
-  em: chalk.italic,
-  codespan: chalk.yellow,
-  del: chalk.dim.gray.strikethrough,
-  link: chalk.blue,
-  href: chalk.blue.underline,
+  code: (s) => styleText('yellow', s),
+  blockquote: (s) => styleText(['gray', 'italic'], s),
+  html: (s) => styleText('gray', s),
+  heading: (s) => styleText(['green', 'bold'], s),
+  firstHeading: (s) => styleText(['magenta', 'underline', 'bold'], s),
+  hr: (s) => styleText('reset', s),
+  listitem: (s) => styleText('reset', s),
+  table: (s) => styleText('reset', s),
+  paragraph: (s) => styleText('reset', s),
+  strong: (s) => styleText('bold', s),
+  em: (s) => styleText('italic', s),
+  codespan: (s) => styleText('yellow', s),
+  del: (s) => styleText(['dim', 'gray', 'strikethrough'], s),
+  link: (s) => styleText('blue', s),
+  href: (s) => styleText(['blue', 'underline'], s),
+  text: (s) => s,
 
   // Formats the bulletpoints and numbers for lists
-  list: function (body, ordered) {/* ... */},
+  list: function (body, ordered, indent) {/* ... */},
 
   // Reflow and print-out width
   width: 80, // only applicable when reflow is true
@@ -124,27 +122,98 @@ var defaultOptions = {
   tableOptions: {},
 
   // The size of tabs in number of spaces or as tab characters
-  tab: 3 // examples: 4, 2, \t, \t\t
+  tab: 4, // examples: 4, 2, \t, \t\t
 
   image: function (href, title, text) {} // function for overriding the default image handling.
 };
 ```
 
+Colors are disabled when `NO_COLOR` is set or stdout doesn't support colors,
+and can be forced with `FORCE_COLOR`.
+
 #### Example of overriding defaults
 
-```javascript
-marked.setOptions({
-  renderer: new TerminalRenderer({
-    codespan: chalk.underline.magenta
+```ts
+import { styleText } from 'node:util';
+
+marked.use(
+  markedTerminal({
+    codespan: (s) => styleText(['underline', 'magenta'], s)
   })
-});
+);
 ```
 
 ### `highlightOptions`
 
-Options passed into [cli-highlight](https://github.com/felixfbecker/cli-highlight). See readme there to see what options to pass.
+```ts
+interface HighlightOptions {
+  // Map of highlight.js classes (without `hljs-` prefix) to style functions.
+  // Defaults to `defaultSheet`, a theme matching marked-terminal v7.
+  sheet?: Record<string, (text: string) => string>;
+  // Languages to consider when auto-detecting code without a language tag.
+  subset?: string[];
+}
+```
+
+```ts
+import { defaultSheet, markedTerminal } from 'marked-terminal';
+
+marked.use(
+  markedTerminal({}, { sheet: { ...defaultSheet, keyword: (s) => styleText('magenta', s) } })
+);
+```
 
 See [more examples](./example/)
+
+## Migrating from v7
+
+- Requires a Node.js LTS version (>= 22.12) and marked >= 13.
+- The package is ESM-only. `require('marked-terminal')` still works through
+  Node's native `require(esm)`.
+- The `TerminalRenderer` class (and the default export) is removed. Use the
+  `markedTerminal` extension, the
+  [recommended way](https://marked.js.org/using_pro#renderer) of overriding
+  marked's renderer:
+
+  ```diff
+  - import TerminalRenderer from 'marked-terminal';
+  - marked.setOptions({ renderer: new TerminalRenderer(options, highlightOptions) });
+  + import { markedTerminal } from 'marked-terminal';
+  + marked.use(markedTerminal(options, highlightOptions));
+  ```
+- TypeScript types are bundled; remove `@types/marked-terminal`.
+- `highlightOptions` are now `{ sheet, subset }` (see above) instead of
+  [cli-highlight](https://github.com/felixfbecker/cli-highlight) options.
+  Highlighting uses highlight.js 11, so some code may be colored slightly differently.
+- Default styles use `node:util`'s `styleText` instead of chalk. Custom style
+  options work as before, as any `(text: string) => string` function.
+
+## Development
+
+```sh
+pnpm install
+pnpm test        # vitest, including type tests
+pnpm lint        # biome
+pnpm typecheck
+pnpm build       # tsdown -> dist/
+```
+
+### Running examples
+
+The examples in [`example/`](./example) are TypeScript and import straight from
+`src/`, so there's no build step. Node runs `.ts` files directly through its
+built-in type stripping (unflagged since Node 22.18 / 23.6):
+
+```sh
+node example/demo.ts               # tour of most features
+node example/reflow.ts             # text reflow at a fixed width
+node example/usage.ts              # CLI usage/help output
+node example/print.ts              # render this README
+node example/print.ts path/to.md   # render any Markdown file
+```
+
+Edits to `src/` show up on the next run, which makes the examples handy for
+checking renderer changes by eye.
 
 ## Related
 
