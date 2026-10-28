@@ -140,7 +140,12 @@ export function markedTerminal(
     },
 
     text(token) {
-      return o.text(stripControlChars(token.text));
+      // Block-level text tokens (e.g. in tight list items) carry inline tokens
+      const text =
+        'tokens' in token && token.tokens
+          ? this.parser.parseInline(token.tokens)
+          : stripControlChars(token.text);
+      return o.text(text);
     },
 
     code(token) {
