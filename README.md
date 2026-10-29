@@ -11,7 +11,7 @@ Could for instance be used to print usage information.
 ## Install
 
 ```sh
-npm install marked marked-terminal
+pnpm add marked marked-terminal
 ```
 
 Requires a Node.js LTS version (>= 22.12) and marked >= 13. TypeScript types are included.
@@ -38,6 +38,38 @@ const { markedTerminal } = require('marked-terminal');
 This will produce the following:
 
 ![Screenshot of marked-terminal](./screenshot.png)
+
+## CLI
+
+marked-terminal also comes with a command line tool, `mt`, for rendering
+Markdown files or piped input directly from bash, PowerShell and other shells:
+
+```sh
+pnpm dlx marked-terminal README.md   # without installing
+pnpm add -g marked marked-terminal
+mt README.md
+cat CHANGELOG.md | mt --width 60
+```
+
+The CLI wraps text and tables to the terminal width (at most 100 columns) and
+indents with 2 spaces. Colors are turned off when output isn't a terminal or
+`NO_COLOR` is set.
+
+```
+Usage: mt [options] [file ...]
+
+Options:
+  -f, --file <path>       Markdown file to render (same as passing it as an argument)
+  -w, --width <columns>   Width to wrap text and tables at
+                          (default: terminal width, at most 100)
+      --no-reflow         Don't wrap text and tables to the width
+      --color             Force colors, even when not writing to a terminal
+      --no-color          Disable colors (also respects NO_COLOR)
+      --no-emoji          Don't replace :emoji: codes with emojis
+      --no-section-prefix Don't prefix headings with #
+  -h, --help              Show this help
+  -v, --version           Show version
+```
 
 ### Syntax Highlighting
 

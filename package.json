@@ -25,6 +25,10 @@
     ".": "./dist/index.js",
     "./package.json": "./package.json"
   },
+  "bin": {
+    "marked-terminal": "./dist/cli.js",
+    "mt": "./dist/cli.js"
+  },
   "types": "./dist/index.d.ts",
   "files": [
     "dist"
