@@ -53,10 +53,14 @@ cat CHANGELOG.md | mt --width 60
 
 The CLI wraps text and tables to the terminal width (at most 100 columns) and
 indents with 2 spaces. Colors are turned off when output isn't a terminal or
-`NO_COLOR` is set.
+`NO_COLOR` is set. Several files can be passed at once, and `-` reads from
+stdin.
 
 ```
 Usage: mt [options] [file ...]
+
+Render Markdown to the terminal. Reads from stdin when no file is given,
+or when file is "-".
 
 Options:
   -f, --file <path>       Markdown file to render (same as passing it as an argument)
@@ -71,10 +75,17 @@ Options:
       --remote-images     Download and draw http(s) images
   -h, --help              Show this help
   -v, --version           Show version
+
+Examples:
+  mt README.md
+  cat CHANGELOG.md | mt --width 60
+  pnpm dlx marked-terminal README.md
 ```
 
 The CLI draws images in the terminal, resolving paths relative to the
-Markdown file. See [Images](#images).
+Markdown file (or the current directory for stdin). Remote images are only
+downloaded with `--remote-images`. When output isn't a terminal, images are
+printed as text. See [Images](#images).
 
 ### Images
 
