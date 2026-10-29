@@ -268,29 +268,6 @@ marked.use(
 
 See [more examples](./example/)
 
-## Migrating from v7
-
-- Requires a Node.js LTS version (>= 22.12) and marked >= 13.
-- The package is ESM-only. `require('marked-terminal')` still works through
-  Node's native `require(esm)`.
-- The `TerminalRenderer` class (and the default export) is removed. Use the
-  `markedTerminal` extension, the
-  [recommended way](https://marked.js.org/using_pro#renderer) of overriding
-  marked's renderer:
-
-  ```diff
-  - import TerminalRenderer from 'marked-terminal';
-  - marked.setOptions({ renderer: new TerminalRenderer(options, highlightOptions) });
-  + import { markedTerminal } from 'marked-terminal';
-  + marked.use(markedTerminal(options, highlightOptions));
-  ```
-- TypeScript types are bundled; remove `@types/marked-terminal`.
-- `highlightOptions` are now `{ sheet, subset }` (see above) instead of
-  [cli-highlight](https://github.com/felixfbecker/cli-highlight) options.
-  Highlighting uses highlight.js 11, so some code may be colored slightly differently.
-- Default styles use `node:util`'s `styleText` instead of chalk. Custom style
-  options work as before, as any `(text: string) => string` function.
-
 ## Development
 
 ```sh
