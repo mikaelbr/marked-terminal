@@ -215,7 +215,9 @@ export function markedTerminal(
 
     listitem(item) {
       let text = '';
-      if (item.task) {
+      // marked >= 17 adds the checkbox token to the item itself
+      if (item.task && !hasCheckboxToken(item.tokens)) {
+        // The checkbox renderer output includes its trailing space
         const checkbox = this.checkbox({
           type: 'checkbox',
           raw: '',
@@ -223,21 +225,28 @@ export function markedTerminal(
         });
         if (item.loose) {
           const first = item.tokens[0];
-          if (first?.type === 'paragraph') {
-            first.text = `${checkbox} ${first.text}`;
+          // marked < 17 lexes loose item content as text, rendered as paragraphs
+          if (first?.type === 'paragraph' || first?.type === 'text') {
+            first.text = `${checkbox}${first.text}`;
             const firstInline = first.tokens?.[0];
             if (firstInline?.type === 'text') {
-              firstInline.text = `${checkbox} ${firstInline.text}`;
+              firstInline.text = `${checkbox}${firstInline.text}`;
+            } else {
+              first.tokens?.unshift({
+                type: 'text',
+                raw: checkbox,
+                text: checkbox
+              });
             }
           } else {
             item.tokens.unshift({
               type: 'text',
-              raw: `${checkbox} `,
-              text: `${checkbox} `
+              raw: checkbox,
+              text: checkbox
             });
           }
         } else {
-          text += `${checkbox} `;
+          text += checkbox;
         }
       }
 
@@ -255,7 +264,10 @@ export function markedTerminal(
       if (text.includes('\n')) text = text.trim();
       text = transform(text);
       // Loose items are reflowed as paragraphs; tight items are bare text
-      if (o.reflowText && ownTokens.every((t) => t.type === 'text')) {
+      if (
+        o.reflowText &&
+        ownTokens.every((t) => t.type === 'text' || t.type === 'checkbox')
+      ) {
         text = reflow(text, this.options.gfm);
       }
 
@@ -531,6 +543,14 @@ function toSpaces(str: string): string {
 }
 
 const BULLET_POINT = '* ';
+// Tight items get a block checkbox token, loose items an inline one
+// at the start of their first paragraph
+function hasCheckboxToken(tokens: Token[]): boolean {
+  const first = tokens[0];
+  if (first?.type === 'checkbox') return true;
+  return first?.type === 'paragraph' && first.tokens?.[0]?.type === 'checkbox';
+}
+
 // Only this list's own points start with a marker, nested ones are indented
 function isOwnPoint(line: string): boolean {
   return line.startsWith(BULLET_POINT);
