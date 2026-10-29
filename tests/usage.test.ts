@@ -16,6 +16,9 @@ const reflowOptions: TerminalRendererOptions = {
 describe('Renderer', () => {
   const markup = (str: string, gfm = false) =>
     stripTermEsc(render(str, reflowOptions, { gfm }));
+  // Lists are reflowed too, so give them room to test structure only
+  const listMarkup = (str: string) =>
+    stripTermEsc(render(str, { ...reflowOptions, width: 40 }, { gfm: false }));
 
   it('should render links', () => {
     expect(render('[Google](http://google.com)', plainOptions).trim()).toBe(
@@ -159,31 +162,31 @@ describe('Renderer', () => {
   });
 
   it('should render ordered and unordered list with same newlines', () => {
-    expect(markup('* ul item\n* ul item')).toBe(
+    expect(listMarkup('* ul item\n* ul item')).toBe(
       '    * ul item\n    * ul item\n\n'
     );
-    expect(markup('1. ol item\n2. ol item')).toBe(
+    expect(listMarkup('1. ol item\n2. ol item')).toBe(
       '    1. ol item\n    2. ol item\n\n'
     );
   });
 
   it('should render nested lists', () => {
-    expect(markup('* ul item\n    * ul item')).toBe(
+    expect(listMarkup('* ul item\n    * ul item')).toBe(
       '    * ul item\n        * ul item\n\n'
     );
-    expect(markup('1. ol item\n    1. ol item')).toBe(
+    expect(listMarkup('1. ol item\n    1. ol item')).toBe(
       '    1. ol item\n        1. ol item\n\n'
     );
-    expect(markup('1. ol item\n    * ul item')).toBe(
+    expect(listMarkup('1. ol item\n    * ul item')).toBe(
       '    1. ol item\n        * ul item\n\n'
     );
-    expect(markup('* ul item\n    1. ol item')).toBe(
+    expect(listMarkup('* ul item\n    1. ol item')).toBe(
       '    * ul item\n        1. ol item\n\n'
     );
   });
 
   it('should render task items', () => {
-    expect(markup('* [ ] task item\n* [X] task item')).toBe(
+    expect(listMarkup('* [ ] task item\n* [X] task item')).toBe(
       '    * [ ] task item\n    * [X] task item\n\n'
     );
   });

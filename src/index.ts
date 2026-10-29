@@ -134,6 +134,13 @@ export function markedTerminal(
   const unescapeHtml = o.unescape ? unescapeEntities : identity;
   const transform = compose(undoColon, unescapeHtml, insertEmoji);
 
+  // Columns taken up by list indentation and markers around the content
+  // currently being rendered, so reflowed list content fits within width.
+  let listIndent = 0;
+  let listMarkerWidth = 0;
+  const reflow = (text: string, gfm: boolean | undefined) =>
+    reflowText(text, Math.max(o.width - listIndent - listMarkerWidth, 1), gfm);
+
   const renderer: RendererObject = {
     space() {
       return '';
@@ -178,7 +185,7 @@ export function markedTerminal(
       const prefix = o.showSectionPrefix ? `${'#'.repeat(level)} ` : '';
       text = prefix + text;
       if (o.reflowText) {
-        text = reflowText(text, o.width, this.options.gfm);
+        text = reflow(text, this.options.gfm);
       }
       return section(level === 1 ? o.firstHeading(text) : o.heading(text));
     },
@@ -188,10 +195,20 @@ export function markedTerminal(
     },
 
     list(token) {
+      const parentIndent = listIndent;
+      const parentMarkerWidth = listMarkerWidth;
+      listIndent += tab.length;
+      listMarkerWidth = token.ordered
+        ? numberedPoint(token.items.length).length
+        : BULLET_POINT.length;
+
       let body = '';
       for (const item of token.items) {
         body += this.listitem(item);
       }
+
+      listIndent = parentIndent;
+      listMarkerWidth = parentMarkerWidth;
       body = o.list(body, token.ordered, tab);
       return section(fixNestedLists(indentLines(tab, body), tab));
     },
@@ -236,11 +253,16 @@ export function markedTerminal(
       const nestedLists = item.tokens.filter((t) => t.type === 'list');
       text += parse.call(this.parser, ownTokens, !!item.loose);
       if (text.includes('\n')) text = text.trim();
+      text = transform(text);
+      // Loose items are reflowed as paragraphs; tight items are bare text
+      if (o.reflowText && ownTokens.every((t) => t.type === 'text')) {
+        text = reflow(text, this.options.gfm);
+      }
 
       const nested = parse.call(this.parser, nestedLists).trimEnd();
 
       // Use BULLET_POINT as a marker for ordered or unordered list item
-      return `\n${BULLET_POINT}${o.listitem(transform(text))}${nested}`;
+      return `\n${BULLET_POINT}${o.listitem(text)}${nested && `\n${nested}`}`;
     },
 
     checkbox(token) {
@@ -250,7 +272,7 @@ export function markedTerminal(
     paragraph(token) {
       let text = o.paragraph(transform(this.parser.parseInline(token.tokens)));
       if (o.reflowText) {
-        text = reflowText(text, o.width, this.options.gfm);
+        text = reflow(text, this.options.gfm);
       }
       return section(text);
     },
@@ -509,35 +531,54 @@ function toSpaces(str: string): string {
 }
 
 const BULLET_POINT = '* ';
-function bulletPointLine(indent: string, line: string): string {
-  return isPointedLine(line, indent) ? line : toSpaces(BULLET_POINT) + line;
+// Only this list's own points start with a marker, nested ones are indented
+function isOwnPoint(line: string): boolean {
+  return line.startsWith(BULLET_POINT);
+}
+
+// Replaces the list's own markers with `point(num)` and indents the item's
+// continuation lines to align with its text. Nested lists come last in an
+// item and are already formatted, so they are left as is.
+function pointLines(
+  lines: string[],
+  indent: string,
+  point: (num: number) => string
+): string {
+  let num = 0;
+  let inNested = false;
+  return lines
+    .map((line) => {
+      if (isOwnPoint(line)) {
+        num++;
+        inNested = false;
+        return point(num) + line.slice(BULLET_POINT.length);
+      }
+      if (inNested || isPointedLine(line, indent)) {
+        inNested = true;
+        return line;
+      }
+      return toSpaces(point(num)) + line;
+    })
+    .join('\n');
 }
 
 function bulletPointLines(lines: string, indent: string): string {
-  return lines
-    .split('\n')
-    .filter(identity)
-    .map((line) => bulletPointLine(indent, line))
-    .join('\n');
+  return pointLines(
+    lines.split('\n').filter(identity),
+    indent,
+    () => BULLET_POINT
+  );
 }
 
-function numberedPoint(n: number): string {
-  return `${n}. `;
+// Pads the point to the width of the largest number so item text aligns
+function numberedPoint(n: number, max = n): string {
+  return `${`${n}.`.padEnd(`${max}.`.length)} `;
 }
 
 function numberedLines(lines: string, indent: string): string {
-  let num = 0;
-  return lines
-    .split('\n')
-    .filter(identity)
-    .map((line) => {
-      if (isPointedLine(line, indent)) {
-        num++;
-        return line.replace(BULLET_POINT, numberedPoint(num));
-      }
-      return toSpaces(numberedPoint(num)) + line;
-    })
-    .join('\n');
+  const nonEmpty = lines.split('\n').filter(identity);
+  const max = nonEmpty.filter(isOwnPoint).length;
+  return pointLines(nonEmpty, indent, (num) => numberedPoint(num, max));
 }
 
 function list(body: string, ordered: boolean, indent: string): string {
