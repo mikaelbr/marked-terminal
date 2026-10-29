@@ -59,6 +59,16 @@ describe('cli', () => {
     ).not.toContain('\u001b[');
   });
 
+  it('should disable hyperlinks with --no-color', () => {
+    const link = '[Github](https://github.com)';
+    expect(mt([], link, { FORCE_HYPERLINK: '1' }).stdout).toContain(
+      '\u001b]8;;'
+    );
+    expect(mt(['--no-color'], link, { FORCE_HYPERLINK: '1' }).stdout).toBe(
+      'Github (https://github.com)\n'
+    );
+  });
+
   it('should respect NO_COLOR', () => {
     expect(mt([], '# Hi', { NO_COLOR: '1' }).stdout).toBe('# Hi\n');
   });

@@ -52,10 +52,17 @@ export interface TerminalRendererOptions {
   tableOptions?: Table.TableConstructorOptions;
   /** Override the default image rendering. */
   image?: ImageFn;
+  /**
+   * Render links as clickable terminal hyperlinks (OSC 8) instead of
+   * `text (url)`. Detected from stdout when not set.
+   */
+  hyperlinks?: boolean;
 }
 
-type ResolvedOptions = Required<Omit<TerminalRendererOptions, 'image'>> &
-  Pick<TerminalRendererOptions, 'image'>;
+type ResolvedOptions = Required<
+  Omit<TerminalRendererOptions, 'image' | 'hyperlinks'>
+> &
+  Pick<TerminalRendererOptions, 'image' | 'hyperlinks'>;
 
 const TABLE_CELL_SPLIT = '^*||*^';
 const TABLE_ROW_WRAP = '*|*|*|*';
@@ -133,6 +140,7 @@ export function markedTerminal(
   const insertEmoji = o.emoji ? insertEmojis : identity;
   const unescapeHtml = o.unescape ? unescapeEntities : identity;
   const transform = compose(undoColon, unescapeHtml, insertEmoji);
+  const hyperlinks = o.hyperlinks ?? supportsHyperlinks.stdout;
 
   // Columns taken up by list indentation and markers around the content
   // currently being rendered, so reflowed list content fits within width.
@@ -375,7 +383,7 @@ export function markedTerminal(
 
       let out = '';
 
-      if (supportsHyperlinks.stdout) {
+      if (hyperlinks) {
         const link = text ? o.href(insertEmoji(text)) : o.href(href);
         out = terminalLink(
           link,

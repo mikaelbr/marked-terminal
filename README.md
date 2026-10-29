@@ -156,7 +156,11 @@ const defaultOptions = {
   // The size of tabs in number of spaces or as tab characters
   tab: 4, // examples: 4, 2, \t, \t\t
 
-  image: function (href, title, text) {} // function for overriding the default image handling.
+  image: function (href, title, text) {}, // function for overriding the default image handling.
+
+  // Render links as clickable terminal hyperlinks instead of `text (url)`.
+  // Detected from stdout when not set.
+  hyperlinks: undefined
 };
 ```
 

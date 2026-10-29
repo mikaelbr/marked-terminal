@@ -100,11 +100,10 @@ if (!files.length) {
 
 const width = parseWidth(values.width);
 
-// Color and hyperlink support is read from the environment, and hyperlink
-// support is detected on import, so set them before loading the renderer.
+// Color support is read from the environment, so set it before loading
+// the renderer.
 if (values.color !== undefined) {
   process.env.FORCE_COLOR = values.color ? '1' : '0';
-  if (!values.color) process.env.FORCE_HYPERLINK = '0';
 }
 
 const [{ Marked }, { markedTerminal }] = await Promise.all([
@@ -118,6 +117,7 @@ const marked = new Marked(
     width,
     emoji: values.emoji,
     showSectionPrefix: values['section-prefix'],
+    hyperlinks: values.color === false ? false : undefined,
     tab: 2
   })
 );

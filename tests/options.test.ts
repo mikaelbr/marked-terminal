@@ -45,4 +45,45 @@ describe('Options', () => {
     });
     expect(calls).toEqual([['./img.jpg', 'Title', 'Alt']]);
   });
+
+  describe('hyperlinks', () => {
+    const link = '[Github](https://github.com)';
+
+    it('should render text and url when disabled', () => {
+      expect(render(link, { ...options, hyperlinks: false })).toBe(
+        'Github (https://github.com)\n\n'
+      );
+    });
+
+    it('should render a terminal hyperlink when enabled', () => {
+      expect(render(link, { ...options, hyperlinks: true })).toBe(
+        '\u001B]8;;https://github.com\u0007Github\u001B]8;;\u0007\n\n'
+      );
+    });
+
+    it('should render the url as link text when there is no text', () => {
+      expect(
+        render('<https://github.com>', { ...options, hyperlinks: true })
+      ).toBe(
+        '\u001B]8;;https://github.com\u0007https://github.com\u001B]8;;\u0007\n\n'
+      );
+      expect(
+        render('<https://github.com>', { ...options, hyperlinks: false })
+      ).toBe('https://github.com\n\n');
+    });
+
+    it('should detect support from stdout when not set', async () => {
+      const { default: supportsHyperlinks } = await import(
+        'supports-hyperlinks'
+      );
+      const expected = render(link, {
+        ...options,
+        hyperlinks: supportsHyperlinks.stdout
+      });
+      expect(render(link, options)).toBe(expected);
+      expect(render(link, { ...options, hyperlinks: undefined })).toBe(
+        expected
+      );
+    });
+  });
 });
