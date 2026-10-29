@@ -22,8 +22,8 @@ describe('Options', () => {
     expect(render('> Blockquote', { ...options, tab })).toBe(
       `${indent}Blockquote\n\n`
     );
-    expect(render('* List Item', { ...options, tab })).toBe(
-      `${indent}* List Item\n\n`
+    expect(render('* List Item\n    * Nested', { ...options, tab })).toBe(
+      `* List Item\n${indent}* Nested\n\n`
     );
   });
 

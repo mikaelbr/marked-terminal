@@ -205,7 +205,9 @@ export function markedTerminal(
     list(token) {
       const parentIndent = listIndent;
       const parentMarkerWidth = listMarkerWidth;
-      listIndent += tab.length;
+      // Top-level lists aren't indented, their markers set them apart
+      const nested = listMarkerWidth > 0;
+      if (nested) listIndent += tab.length;
       listMarkerWidth = token.ordered
         ? numberedPoint(token.items.length).length
         : BULLET_POINT.length;
@@ -218,7 +220,9 @@ export function markedTerminal(
       listIndent = parentIndent;
       listMarkerWidth = parentMarkerWidth;
       body = o.list(body, token.ordered, tab);
-      return section(fixNestedLists(indentLines(tab, body), tab));
+      return section(
+        fixNestedLists(nested ? indentLines(tab, body) : body, tab)
+      );
     },
 
     listitem(item) {

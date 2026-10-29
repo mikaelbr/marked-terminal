@@ -162,32 +162,30 @@ describe('Renderer', () => {
   });
 
   it('should render ordered and unordered list with same newlines', () => {
-    expect(listMarkup('* ul item\n* ul item')).toBe(
-      '    * ul item\n    * ul item\n\n'
-    );
+    expect(listMarkup('* ul item\n* ul item')).toBe('* ul item\n* ul item\n\n');
     expect(listMarkup('1. ol item\n2. ol item')).toBe(
-      '    1. ol item\n    2. ol item\n\n'
+      '1. ol item\n2. ol item\n\n'
     );
   });
 
   it('should render nested lists', () => {
     expect(listMarkup('* ul item\n    * ul item')).toBe(
-      '    * ul item\n        * ul item\n\n'
+      '* ul item\n    * ul item\n\n'
     );
     expect(listMarkup('1. ol item\n    1. ol item')).toBe(
-      '    1. ol item\n        1. ol item\n\n'
+      '1. ol item\n    1. ol item\n\n'
     );
     expect(listMarkup('1. ol item\n    * ul item')).toBe(
-      '    1. ol item\n        * ul item\n\n'
+      '1. ol item\n    * ul item\n\n'
     );
     expect(listMarkup('* ul item\n    1. ol item')).toBe(
-      '    * ul item\n        1. ol item\n\n'
+      '* ul item\n    1. ol item\n\n'
     );
   });
 
   it('should render task items', () => {
     expect(listMarkup('* [ ] task item\n* [X] task item')).toBe(
-      '    * [ ] task item\n    * [X] task item\n\n'
+      '* [ ] task item\n* [X] task item\n\n'
     );
   });
 });

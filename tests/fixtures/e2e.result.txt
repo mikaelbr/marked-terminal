@@ -2,32 +2,32 @@ It's very easy to make some words bold and other words italic with Markdown. You
 
 Sometimes you want numbered lists:
 
-    1. One
-    2. Two
-    3. Three
+1. One
+2. Two
+3. Three
 
 Sometimes you want bullet points:
 
-    * Start a line with a star
-    * Profit!
+* Start a line with a star
+* Profit!
 
 Alternatively,
 
-    * Dashes work just as well
-    * And if you have sub points,
-      put two spaces before the dash or star:
-        * Like this
-        * And this
-    * Lorem
-        * Ipsum
-        * Dolor
+* Dashes work just as well
+* And if you have sub points,
+  put two spaces before the dash or star:
+    * Like this
+    * And this
+* Lorem
+    * Ipsum
+    * Dolor
 
 But also,
 
-    1. And not to forget
-       numbered lists
-        1. Can also have
-        2. Several sub points
+1. And not to forget
+   numbered lists
+    1. Can also have
+    2. Several sub points
 
 # Structured documents
 
