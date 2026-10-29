@@ -36,8 +36,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # lowest version here should also be in `engines` field
-        node-version: ["22.12", "lts/*", "latest"]
+        # lowest version here should also be in `engines` field.
+        # Not "latest": it resolves to Node 27 prereleases, where pngjs (via
+        # terminal-image/jimp) breaks on zlib.Inflate being an ES class.
+        node-version: ["22.12", "lts/*", "26"]
         marked-version: ["13", "14", "15", "16", "17", "18"]
     steps:
       - uses: actions/checkout@v7
