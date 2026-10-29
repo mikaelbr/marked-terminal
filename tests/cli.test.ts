@@ -4,10 +4,14 @@ import { describe, expect, it } from 'vitest';
 
 const cli = fileURLToPath(new URL('../src/cli.ts', import.meta.url));
 const fixture = fileURLToPath(new URL('fixtures/e2e.md', import.meta.url));
+// Type stripping is only on by default from Node 22.18.
+const nodeArgs = process.features.typescript
+  ? []
+  : ['--experimental-strip-types'];
 
 function mt(args: string[], input = '', env: NodeJS.ProcessEnv = {}) {
   const { FORCE_COLOR: _, NO_COLOR: __, ...parentEnv } = process.env;
-  return spawnSync(process.execPath, [cli, ...args], {
+  return spawnSync(process.execPath, [...nodeArgs, cli, ...args], {
     input,
     encoding: 'utf8',
     env: { ...parentEnv, ...env }
