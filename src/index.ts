@@ -4,10 +4,12 @@ import type { MarkedExtension, RendererObject, Token } from 'marked';
 import * as emoji from 'node-emoji';
 import supportsHyperlinks from 'supports-hyperlinks';
 import { type HighlightOptions, highlight } from './highlight.ts';
+import { createImages, type ImageOptions } from './images/index.ts';
 import { type StyleFn, style } from './style.ts';
 
 export type { HighlightOptions, Sheet } from './highlight.ts';
 export { defaultSheet } from './highlight.ts';
+export type { ImageOptions, ImageProtocol } from './images/index.ts';
 export type { StyleFn } from './style.ts';
 
 export type ListFn = (body: string, ordered: boolean, indent: string) => string;
@@ -57,12 +59,18 @@ export interface TerminalRendererOptions {
    * `text (url)`. Detected from stdout when not set.
    */
   hyperlinks?: boolean;
+  /**
+   * Draw images in the terminal, using the best protocol it supports.
+   * Images are loaded asynchronously, so `marked.parse` returns a promise
+   * when this is set.
+   */
+  images?: boolean | ImageOptions;
 }
 
 type ResolvedOptions = Required<
-  Omit<TerminalRendererOptions, 'image' | 'hyperlinks'>
+  Omit<TerminalRendererOptions, 'image' | 'hyperlinks' | 'images'>
 > &
-  Pick<TerminalRendererOptions, 'image' | 'hyperlinks'>;
+  Pick<TerminalRendererOptions, 'image' | 'hyperlinks' | 'images'>;
 
 const TABLE_CELL_SPLIT = '^*||*^';
 const TABLE_ROW_WRAP = '*|*|*|*';
@@ -141,11 +149,19 @@ export function markedTerminal(
   const unescapeHtml = o.unescape ? unescapeEntities : identity;
   const transform = compose(undoColon, unescapeHtml, insertEmoji);
   const hyperlinks = o.hyperlinks ?? supportsHyperlinks.stdout;
+  const images = o.images
+    ? createImages(
+        o.images === true ? {} : o.images,
+        o.reflowText ? o.width : process.stdout.columns || 80
+      )
+    : undefined;
 
   // Columns taken up by list indentation and markers around the content
   // currently being rendered, so reflowed list content fits within width.
   let listIndent = 0;
   let listMarkerWidth = 0;
+  // Images can't be drawn inside table cells
+  let inTable = false;
   const reflow = (text: string, gfm: boolean | undefined) =>
     reflowText(text, Math.max(o.width - listIndent - listMarkerWidth, 1), gfm);
 
@@ -353,7 +369,10 @@ export function markedTerminal(
     },
 
     tablecell(token) {
-      return this.parser.parseInline(token.tokens) + TABLE_CELL_SPLIT;
+      inTable = true;
+      const text = this.parser.parseInline(token.tokens);
+      inTable = false;
+      return text + TABLE_CELL_SPLIT;
     },
 
     // span level renderer
@@ -412,13 +431,22 @@ export function markedTerminal(
       }
       let out = `![${text}`;
       if (title) out += ` – ${title}`;
-      return `${out}](${href})\n`;
+      out = `${out}](${href})\n`;
+
+      return images && !inTable ? images.render(token, out) : out;
     }
   };
 
   // `useNewRenderer` makes marked 13 pass tokens to extension renderers.
   // Later versions always do and ignore the flag.
-  return { renderer, useNewRenderer: true } as MarkedExtension;
+  const extension = { renderer, useNewRenderer: true } as MarkedExtension;
+  if (!images) return extension;
+  return {
+    ...extension,
+    async: true,
+    walkTokens: images.walkTokens,
+    hooks: { postprocess: images.place }
+  };
 }
 
 // Munge \n's and spaces in "text" so that the number of

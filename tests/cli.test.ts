@@ -69,6 +69,14 @@ describe('cli', () => {
     );
   });
 
+  it('should print images as text when not in a terminal', () => {
+    const image = '![alt](screenshot.png)';
+    expect(mt([], image).stdout).toBe(`${image}\n`);
+    expect(mt(['--no-images', '--remote-images'], image).stdout).toBe(
+      `${image}\n`
+    );
+  });
+
   it('should respect NO_COLOR', () => {
     expect(mt([], '# Hi', { NO_COLOR: '1' }).stdout).toBe('# Hi\n');
   });

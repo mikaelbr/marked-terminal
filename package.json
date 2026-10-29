@@ -53,8 +53,11 @@
   "dependencies": {
     "cli-table3": "^0.6.5",
     "emphasize": "^7.0.0",
+    "image-dimensions": "^2.6.0",
     "node-emoji": "^2.2.0",
-    "supports-hyperlinks": "^4.6.0"
+    "supports-hyperlinks": "^4.6.0",
+    "supports-terminal-graphics": "^0.1.0",
+    "terminal-image": "^5.0.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.3",

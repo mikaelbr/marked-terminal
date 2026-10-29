@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 
 const MAX_DEFAULT_WIDTH = 100;
@@ -18,6 +19,8 @@ Options:
       --no-color          Disable colors (also respects NO_COLOR)
       --no-emoji          Don't replace :emoji: codes with emojis
       --no-section-prefix Don't prefix headings with #
+      --no-images         Show images as text instead of drawing them
+      --remote-images     Download and draw http(s) images
   -h, --help              Show this help
   -v, --version           Show version
 
@@ -44,6 +47,8 @@ function parse() {
         color: { type: 'boolean' },
         emoji: { type: 'boolean', default: true },
         'section-prefix': { type: 'boolean', default: true },
+        images: { type: 'boolean', default: true },
+        'remote-images': { type: 'boolean', default: false },
         help: { type: 'boolean', short: 'h' },
         version: { type: 'boolean', short: 'v' }
       }
@@ -111,16 +116,24 @@ const [{ Marked }, { markedTerminal }] = await Promise.all([
   import('./index.ts')
 ]);
 
-const marked = new Marked(
-  markedTerminal({
-    reflowText: values.reflow,
-    width,
-    emoji: values.emoji,
-    showSectionPrefix: values['section-prefix'],
-    hyperlinks: values.color === false ? false : undefined,
-    tab: 2
-  })
-);
+// Images are resolved relative to the file they're in
+function render(file: string): Promise<string> {
+  const marked = new Marked(
+    markedTerminal({
+      reflowText: values.reflow,
+      width,
+      emoji: values.emoji,
+      showSectionPrefix: values['section-prefix'],
+      hyperlinks: values.color === false ? false : undefined,
+      images: values.images && {
+        baseDir: file === '-' ? process.cwd() : dirname(resolve(file)),
+        remote: values['remote-images']
+      },
+      tab: 2
+    })
+  );
+  return Promise.resolve(marked.parse(read(file)));
+}
 
 // Exit quietly when the output is closed early, e.g. piped to `head`
 process.stdout.on('error', (error: NodeJS.ErrnoException) => {
@@ -128,7 +141,7 @@ process.stdout.on('error', (error: NodeJS.ErrnoException) => {
   throw error;
 });
 
-const output = files
-  .map((file) => (marked.parse(read(file)) as string).trimEnd())
+const output = (await Promise.all(files.map(render)))
+  .map((rendered) => rendered.trimEnd())
   .join('\n\n');
 process.stdout.write(`${output}\n`);

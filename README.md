@@ -67,8 +67,61 @@ Options:
       --no-color          Disable colors (also respects NO_COLOR)
       --no-emoji          Don't replace :emoji: codes with emojis
       --no-section-prefix Don't prefix headings with #
+      --no-images         Show images as text instead of drawing them
+      --remote-images     Download and draw http(s) images
   -h, --help              Show this help
   -v, --version           Show version
+```
+
+The CLI draws images in the terminal, resolving paths relative to the
+Markdown file. See [Images](#images).
+
+### Images
+
+Set `images` to draw images in the terminal instead of printing them as
+`![alt](href)`:
+
+```ts
+marked.use(markedTerminal({ images: true }));
+
+console.log(await marked.parse('![Logo](./logo.png)'));
+```
+
+Images are loaded asynchronously, so `marked.parse` returns a promise when
+`images` is set. How images are drawn depends on the terminal:
+
+| Terminal                                       | Images                                   |
+| ---------------------------------------------- | ---------------------------------------- |
+| iTerm2, WezTerm, VS Code, Konsole, mintty, Rio | Full resolution (iTerm2 protocol)        |
+| Kitty, Ghostty, Warp                           | Full resolution for PNGs (Kitty protocol), others pixelated |
+| Other terminals, tmux and screen               | Pixelated, with colored half blocks      |
+| Output that isn't a terminal                   | Printed as text, as without `images`     |
+
+Try it in your terminal with `node example/images.ts`, optionally passing
+`kitty`, `iterm2` or `ansi` to force a protocol.
+
+Pixelated images are drawn by [terminal-image](https://github.com/sindresorhus/terminal-image),
+which supports PNG, JPEG, GIF and BMP. Other formats, and images that can't be
+loaded, are printed as text.
+
+`images` can also be an object of options:
+
+```ts
+markedTerminal({
+  images: {
+    // Directory relative image paths are resolved from (default: cwd)
+    baseDir: '/path/to/docs',
+    // Download http(s) images. Off by default, so rendering untrusted
+    // Markdown doesn't make network requests.
+    remote: false,
+    // Largest image to load, in bytes (default: 10 MB)
+    maxBytes: 10 * 1024 * 1024,
+    // Maximum width in columns (default: the output width)
+    width: 60,
+    // Force 'kitty', 'iterm2' or 'ansi' (pixelated) instead of detecting it
+    protocol: undefined
+  }
+});
 ```
 
 ### Syntax Highlighting
@@ -160,7 +213,10 @@ const defaultOptions = {
 
   // Render links as clickable terminal hyperlinks instead of `text (url)`.
   // Detected from stdout when not set.
-  hyperlinks: undefined
+  hyperlinks: undefined,
+
+  // Draw images in the terminal, see Images above
+  images: false
 };
 ```
 
