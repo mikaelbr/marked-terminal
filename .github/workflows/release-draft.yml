@@ -1,0 +1,75 @@
+name: Release draft
+
+# Keeps a single draft GitHub release in sync with main. The version and notes
+# are computed from conventional commits since the last tag (see cliff.toml).
+# Text written above the marker line in the draft is preserved between runs,
+# so migration notes etc. can be added by hand before publishing.
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-draft
+  cancel-in-progress: true
+
+jobs:
+  draft:
+    name: Update draft release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+      - name: Compute next version and notes
+        id: cliff
+        run: |
+          npx --yes git-cliff@2.14.2 --unreleased --bump --strip all > "$RUNNER_TEMP/notes.md"
+          echo "version=$(npx --yes git-cliff@2.14.2 --bumped-version)" >> "$GITHUB_OUTPUT"
+          if [ -n "$(tr -d '[:space:]' < "$RUNNER_TEMP/notes.md")" ]; then
+            echo "releasable=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Create or update draft release
+        if: steps.cliff.outputs.releasable == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.cliff.outputs.version }}
+        run: |
+          marker='<!-- Generated from commits. Everything below this line is replaced on each push to main. -->'
+          body="$RUNNER_TEMP/body.md"
+
+          draft_id=$(gh api "repos/$GITHUB_REPOSITORY/releases" --paginate \
+            --jq '.[] | select(.draft) | .id' | head -n 1)
+
+          manual=""
+          if [ -n "$draft_id" ]; then
+            manual=$(gh api "repos/$GITHUB_REPOSITORY/releases/$draft_id" --jq '.body // ""' \
+              | awk -v m="$marker" 'index($0, m) == 1 { exit } { print }')
+          fi
+
+          {
+            if [ -n "$(printf '%s' "$manual" | tr -d '[:space:]')" ]; then
+              printf '%s\n\n' "$manual"
+            fi
+            printf '%s\n\n' "$marker"
+            cat "$RUNNER_TEMP/notes.md"
+          } > "$body"
+
+          if [ -n "$draft_id" ]; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/releases/$draft_id" \
+              -f tag_name="$TAG" -f name="$TAG" -f target_commitish="$GITHUB_SHA" \
+              -F body=@"$body" > /dev/null
+            echo "Updated draft $TAG"
+          else
+            gh release create "$TAG" --draft --title "$TAG" \
+              --target "$GITHUB_SHA" --notes-file "$body"
+            echo "Created draft $TAG"
+          fi

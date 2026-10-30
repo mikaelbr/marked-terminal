@@ -1,0 +1,40 @@
+# git-cliff config used by .github/workflows/release-draft.yml to compute the
+# next version and the release notes from conventional commits.
+# https://git-cliff.org/docs/configuration
+
+[changelog]
+header = ""
+body = """
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group | striptags | trim }}
+{% for commit in commits %}
+- {% if commit.scope %}**{{ commit.scope }}:** {% endif %}{{ commit.message | split(pat="\n") | first | trim | upper_first }} \
+  ([{{ commit.id | truncate(length=7, end="") }}](https://github.com/mikaelbr/marked-terminal/commit/{{ commit.id }}))
+{%- endfor %}
+{% endfor %}
+"""
+footer = ""
+trim = true
+
+[git]
+conventional_commits = true
+filter_unconventional = true
+protect_breaking_commits = true
+filter_commits = true
+tag_pattern = "v[0-9].*"
+sort_commits = "oldest"
+commit_parsers = [
+  { message = "^[a-z]+(\\(.+\\))?!:", group = "<!-- 0 -->⚠️ Breaking changes" },
+  { footer = "^BREAKING[ -]CHANGE", group = "<!-- 0 -->⚠️ Breaking changes" },
+  # Legacy prefix used before `type!:` was adopted.
+  { message = "^breaking-change", group = "<!-- 0 -->⚠️ Breaking changes" },
+  { message = "^feat", group = "<!-- 1 -->Features" },
+  { message = "^fix", group = "<!-- 2 -->Bug fixes" },
+  { message = "^perf", group = "<!-- 3 -->Performance" },
+  { message = ".*", skip = true },
+]
+
+[bump]
+features_always_bump_minor = true
+breaking_always_bump_major = true
+custom_major_increment_regex = "breaking-change"
