@@ -333,7 +333,7 @@ export function markedTerminal(
         body += this.tablerow({ text: cell });
       }
 
-      const head = generateTableRow(header)[0];
+      const head = generateTableRow(header, transform)[0];
       const rows = generateTableRow(body, transform);
       const buildTable = (extra: Table.TableConstructorOptions = {}) => {
         const table = new Table({ head, ...o.tableOptions, ...extra });
@@ -672,10 +672,7 @@ function undoColon(str: string): string {
   return str.replace(COLON_REPLACER_REGEXP, ':');
 }
 
-function generateTableRow(
-  text: string,
-  transform: StyleFn = identity
-): string[][] {
+function generateTableRow(text: string, transform: StyleFn): string[][] {
   if (!text) return [];
   const lines = transform(text).split('\n');
 

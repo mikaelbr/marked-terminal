@@ -86,6 +86,19 @@ describe('Renderer', () => {
     expect(render(text, plainOptions)).toContain('<CommandParam>');
   });
 
+  it('should render inline content in table headers like in cells', () => {
+    const text =
+      '| `a:b` | x &amp; y | :heart: |\n|---|---|---|\n| `a:b` | x &amp; y | :heart: |';
+    const rows = render(text)
+      .split('\n')
+      .filter((line) => line.includes('│'))
+      .map((line) => stripTermEsc(line));
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toContain('a:b');
+    expect(rows[0]).toContain('x & y');
+    expect(rows[0]).toBe(rows[1]);
+  });
+
   it('should reflow tables to fit within width', () => {
     const text =
       'Usage | Syntax\n------|-------\nGeneral |`$ shell <CommandParam>`';
