@@ -61,10 +61,10 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.9",
-    "@types/node": "^26.6.7",
+    "@types/node": "^26.6.10",
     "marked": "^18.3.0",
     "tsdown": "^0.23.7",
     "typescript": "^7.0.2",
-    "vitest": "^5.1.1"
+    "vitest": "^5.1.2"
   }
 }
